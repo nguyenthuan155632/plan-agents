@@ -33,8 +33,9 @@ WORKDIR /app
 # Create storage directory
 RUN mkdir -p storage
 
-# Expose port 3000 (Next.js)
-EXPOSE 3000
+# Railway will set PORT dynamically
+ENV PORT=3000
+EXPOSE $PORT
 
 # Start Next.js (not Python!)
 WORKDIR /app/web
