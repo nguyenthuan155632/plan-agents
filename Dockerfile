@@ -33,9 +33,12 @@ WORKDIR /app
 # Create storage directory
 RUN mkdir -p storage
 
-# Expose port
+# Expose ports
+# Port 3000 for Next.js frontend (main port)
+EXPOSE 3000
+# Port 8000 for Python backend (internal)
 EXPOSE 8000
 
-# Start conversation processor
-CMD ["python", "conversation_processor.py"]
+# Start both services
+CMD ["bash", "railway-start.sh"]
 
