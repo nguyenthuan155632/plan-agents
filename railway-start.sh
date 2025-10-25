@@ -1,43 +1,42 @@
 #!/bin/bash
+set -e  # Exit on error
 
-# Railway startup script - runs both Python backend and Next.js frontend
+echo "🚂 Railway Deployment Starting..."
 
-echo "🚂 Starting Railway deployment..."
+# Get PORT from Railway or default to 3000
+PORT=${PORT:-3000}
+echo "📡 PORT: $PORT"
 
-# Use Railway's PORT or default to 3000
-export PORT=${PORT:-3000}
+# Create storage directory
+mkdir -p /app/storage
+echo "📁 Storage directory created"
 
-# Create storage directory if not exists
-mkdir -p storage
-
-# Initialize database if not exists
-if [ ! -f storage/conversations.db ]; then
+# Initialize database if needed
+if [ ! -f /app/storage/conversations.db ]; then
     echo "📦 Initializing database..."
-    python scripts/init_db.py
+    cd /app
+    python scripts/init_db.py || echo "⚠️  Database init skipped (may already exist)"
 fi
 
-echo "🐍 Starting Python conversation processor on port 8000..."
-python conversation_processor.py &
+# Start Python backend in background on port 8000
+echo "🐍 Starting Python backend..."
+cd /app
+python conversation_processor.py > /tmp/python.log 2>&1 &
 PYTHON_PID=$!
+echo "   Python PID: $PYTHON_PID"
 
-# Wait for Python to initialize
-sleep 3
+# Give Python time to start
+sleep 5
 
-echo "⚛️  Starting Next.js frontend on port $PORT..."
-cd web
-PORT=$PORT npm start &
-NEXTJS_PID=$!
+# Check if Python is still running
+if ! kill -0 $PYTHON_PID 2>/dev/null; then
+    echo "❌ Python failed to start!"
+    cat /tmp/python.log
+    exit 1
+fi
+echo "✅ Python backend running"
 
-echo "✅ Both services started!"
-echo "   - Python backend: http://localhost:8000"
-echo "   - Next.js frontend: http://localhost:$PORT"
-echo "   - Python PID: $PYTHON_PID"
-echo "   - Next.js PID: $NEXTJS_PID"
-
-# Keep the script running
-wait -n
-
-# If one process exits, kill the other
-kill $PYTHON_PID $NEXTJS_PID 2>/dev/null
-exit $?
-
+# Start Next.js on Railway's PORT
+echo "⚛️  Starting Next.js on 0.0.0.0:$PORT..."
+cd /app/web
+exec npm start
