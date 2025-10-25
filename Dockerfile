@@ -43,4 +43,3 @@ EXPOSE 8080
 
 # Use entrypoint script to init DB before starting Next.js
 CMD ["/app/railway-entrypoint.sh"]
-
