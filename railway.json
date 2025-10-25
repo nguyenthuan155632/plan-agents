@@ -12,3 +12,8 @@
     "healthcheckTimeout": 100
   }
 }
+
+// NOTE: After deploying, add a Volume in Railway Dashboard:
+// 1. Go to your service → Settings → Volumes
+// 2. Add Volume: Mount Path = /app/storage
+// 3. This will persist your SQLite database across deployments

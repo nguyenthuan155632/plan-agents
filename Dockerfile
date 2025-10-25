@@ -33,11 +33,14 @@ WORKDIR /app
 # Create storage directory
 RUN mkdir -p storage
 
+# Copy and set entrypoint
+COPY railway-entrypoint.sh /app/
+RUN chmod +x /app/railway-entrypoint.sh
+
 # Railway default web port
 ENV PORT=8080
 EXPOSE 8080
 
-# Start Next.js (not Python!)
-WORKDIR /app/web
-CMD ["npm", "start"]
+# Use entrypoint script to init DB before starting Next.js
+CMD ["/app/railway-entrypoint.sh"]
 
