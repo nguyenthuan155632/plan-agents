@@ -1,2 +1,1 @@
-web: python conversation_processor.py
-
+web: bash railway-start.sh
