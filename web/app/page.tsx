@@ -36,8 +36,8 @@ export default function Home() {
     <main className="min-h-screen bg-gray-100 dark:bg-gray-950">
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Session List - Collapsible with animation */}
           <div className={`lg:col-span-1 transition-all duration-300 ${isSidebarCollapsed ? 'hidden' : 'block'}`}>
             <SessionList
@@ -50,15 +50,15 @@ export default function Home() {
           {/* Toggle Sidebar Button - Top Right */}
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="fixed right-4 top-4 z-50 px-3 py-2 bg-purple-400 hover:bg-purple-500 text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center space-x-2 transition-all"
+            className="fixed right-3 sm:right-4 top-3 sm:top-4 z-50 px-2 sm:px-3 py-1.5 sm:py-2 bg-purple-400 hover:bg-purple-500 active:bg-purple-600 text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center space-x-1 sm:space-x-2 transition-all text-xs sm:text-sm touch-manipulation"
             title={isSidebarCollapsed ? 'Show History' : 'Hide History'}
           >
-            <span className="text-lg">{isSidebarCollapsed ? '📜' : '✕'}</span>
-            <span className="text-xs hidden sm:inline">{isSidebarCollapsed ? 'History' : 'Close'}</span>
+            <span className="text-base sm:text-lg">{isSidebarCollapsed ? '📜' : '✕'}</span>
+            <span className="hidden sm:inline">{isSidebarCollapsed ? 'History' : 'Close'}</span>
           </button>
 
           {/* Main Content - Expands when sidebar collapsed */}
-          <div className={`space-y-6 transition-all duration-300 ${isSidebarCollapsed ? 'lg:col-span-4' : 'lg:col-span-3'}`}>
+          <div className={`space-y-4 sm:space-y-6 transition-all duration-300 ${isSidebarCollapsed ? 'lg:col-span-4' : 'lg:col-span-3'}`}>
             {/* Start New Conversation */}
             <StartConversation onSessionCreated={handleSessionCreated} />
 
@@ -79,12 +79,12 @@ export default function Home() {
                 />
               </>
             ) : (
-              <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow p-12 text-center">
-                <div className="text-8xl mb-6">🤖</div>
-                <h2 className="text-3xl font-black text-black dark:text-white mb-4 uppercase tracking-tight">
+              <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow p-6 sm:p-12 text-center">
+                <div className="text-5xl sm:text-8xl mb-4 sm:mb-6">🤖</div>
+                <h2 className="text-xl sm:text-3xl font-black text-black dark:text-white mb-3 sm:mb-4 uppercase tracking-tight">
                   Welcome to Dual AI Collaboration
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400 font-bold text-lg">
+                <p className="text-gray-600 dark:text-gray-400 font-bold text-sm sm:text-lg">
                   Start a new conversation above {!isSidebarCollapsed && 'or select an existing one from the left'}
                 </p>
               </div>

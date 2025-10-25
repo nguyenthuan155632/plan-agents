@@ -369,21 +369,21 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow p-6 relative">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-black text-black dark:text-white flex items-center uppercase tracking-tight">
-          <span className="mr-3 text-3xl">💬</span>
-          Conversation
+    <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow p-3 sm:p-6 relative">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+        <h2 className="text-xl sm:text-2xl font-black text-black dark:text-white flex items-center uppercase tracking-tight">
+          <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">💬</span>
+          <span className="text-base sm:text-2xl">Conversation</span>
         </h2>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
           {/* Jump In button - show when session is active and not already waiting for input */}
           {isSessionActive && !userRequestedInput && messages.length > 0 && messages[messages.length - 1]?.signal !== 'handover' && (
             <button
               onClick={handleJumpIn}
-              className="px-4 py-2 bg-green-400 hover:bg-green-500 text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center space-x-2"
+              className="px-3 sm:px-4 py-2 bg-green-400 hover:bg-green-500 active:bg-green-600 text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center space-x-2 text-sm sm:text-base touch-manipulation"
             >
-              <span>✋</span>
+              <span className="text-base sm:text-lg">✋</span>
               <span>Jump In</span>
             </button>
           )}
@@ -392,9 +392,9 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
           {isSessionActive && messages.length > 0 && (
             <button
               onClick={handleStopConversation}
-              className="px-4 py-2 bg-red-400 hover:bg-red-500 text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center space-x-2"
+              className="px-3 sm:px-4 py-2 bg-red-400 hover:bg-red-500 active:bg-red-600 text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center space-x-2 text-sm sm:text-base touch-manipulation"
             >
-              <span>🛑</span>
+              <span className="text-base sm:text-lg">🛑</span>
               <span>Stop</span>
             </button>
           )}
@@ -404,7 +404,7 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scroll-smooth custom-scrollbar"
+        className="space-y-3 sm:space-y-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth custom-scrollbar"
       >
         {visibleMessages.map((message, index) => {
           const colors = getRoleColor(message.role)

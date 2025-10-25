@@ -48,15 +48,15 @@ export default function StartConversation({ onSessionCreated }: StartConversatio
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow p-6">
-      <h2 className="text-2xl font-black text-black dark:text-white mb-6 flex items-center uppercase tracking-tight">
-        <span className="mr-3 text-3xl">✨</span>
-        Start New Conversation
+    <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow p-4 sm:p-6">
+      <h2 className="text-xl sm:text-2xl font-black text-black dark:text-white mb-4 sm:mb-6 flex items-center uppercase tracking-tight">
+        <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">✨</span>
+        <span className="text-base sm:text-2xl">Start New Conversation</span>
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         <div>
-          <label htmlFor="topic" className="block text-sm font-black text-black dark:text-white mb-3 uppercase tracking-wide">
+          <label htmlFor="topic" className="block text-xs sm:text-sm font-black text-black dark:text-white mb-2 sm:mb-3 uppercase tracking-wide">
             What topic would you like the agents to discuss?
           </label>
           <textarea
@@ -65,13 +65,13 @@ export default function StartConversation({ onSessionCreated }: StartConversatio
             onChange={(e) => setTopic(e.target.value)}
             placeholder="e.g., Best practices for API design, React vs Vue, Microservices vs Monolith, etc."
             rows={4}
-            className="w-full px-4 py-3 bg-white dark:bg-gray-800 neo-border-thin text-black dark:text-white placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white dark:bg-gray-800 neo-border-thin text-black dark:text-white placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none text-sm sm:text-base"
             disabled={isStarting}
           />
         </div>
 
         {error && (
-          <div className="p-4 bg-red-300 dark:bg-red-400 neo-border-thin text-black text-sm font-bold">
+          <div className="p-3 sm:p-4 bg-red-300 dark:bg-red-400 neo-border-thin text-black text-xs sm:text-sm font-bold">
             ⚠️ {error}
           </div>
         )}
@@ -79,7 +79,7 @@ export default function StartConversation({ onSessionCreated }: StartConversatio
         <button
           type="submit"
           disabled={isStarting}
-          className="w-full px-6 py-4 bg-green-400 hover:bg-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide text-lg flex items-center justify-center"
+          className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-green-400 hover:bg-green-500 active:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide text-base sm:text-lg flex items-center justify-center touch-manipulation"
         >
           {isStarting ? (
             <>
@@ -91,7 +91,7 @@ export default function StartConversation({ onSessionCreated }: StartConversatio
             </>
           ) : (
             <>
-              <span className="mr-2 text-2xl">🚀</span>
+              <span className="mr-2 text-xl sm:text-2xl">🚀</span>
               Start Discussion
             </>
           )}

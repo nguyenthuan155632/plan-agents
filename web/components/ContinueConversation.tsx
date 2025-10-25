@@ -58,10 +58,10 @@ export default function ContinueConversation({
   }
 
   return (
-    <div className="bg-yellow-300 dark:bg-yellow-400 rounded-none neo-border neo-shadow-lg p-6">
-      <h3 className="text-xl font-black text-black mb-4 flex items-center uppercase tracking-wide">
-        <span className="mr-3 text-2xl">✋</span>
-        Agents are waiting for your input
+    <div className="bg-yellow-300 dark:bg-yellow-400 rounded-none neo-border neo-shadow-lg p-4 sm:p-6">
+      <h3 className="text-lg sm:text-xl font-black text-black mb-3 sm:mb-4 flex items-center uppercase tracking-wide">
+        <span className="mr-2 sm:mr-3 text-xl sm:text-2xl">✋</span>
+        <span className="text-sm sm:text-xl">Agents are waiting for your input</span>
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -71,13 +71,13 @@ export default function ContinueConversation({
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Enter your message to continue the conversation..."
             rows={3}
-            className="w-full px-4 py-3 bg-white dark:bg-gray-800 neo-border-thin text-black dark:text-white placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white dark:bg-gray-800 neo-border-thin text-black dark:text-white placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none text-sm sm:text-base"
             disabled={isSending}
           />
         </div>
 
         {error && (
-          <div className="p-3 bg-red-300 dark:bg-red-400 neo-border-thin text-black text-sm font-bold">
+          <div className="p-3 bg-red-300 dark:bg-red-400 neo-border-thin text-black text-xs sm:text-sm font-bold">
             ⚠️ {error}
           </div>
         )}
@@ -85,7 +85,7 @@ export default function ContinueConversation({
         <button
           type="submit"
           disabled={isSending}
-          className="w-full px-6 py-3 bg-pink-400 hover:bg-pink-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center"
+          className="w-full px-4 sm:px-6 py-3 bg-pink-400 hover:bg-pink-500 active:bg-pink-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide text-sm sm:text-base flex items-center justify-center touch-manipulation"
         >
           {isSending ? (
             <>
@@ -97,7 +97,7 @@ export default function ContinueConversation({
             </>
           ) : (
             <>
-              <span className="mr-2 text-xl">💬</span>
+              <span className="mr-2 text-base sm:text-xl">💬</span>
               Send Message
             </>
           )}
