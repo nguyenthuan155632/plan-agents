@@ -1,0 +1,18 @@
+# Railway Ignore
+node_modules/
+.next/
+.git/
+*.log
+__pycache__/
+*.pyc
+.env
+.env.local
+.DS_Store
+venv/
+*.swp
+*.swo
+.vscode/
+.idea/
+storage/conversations.db
+storage/*.txt
+
