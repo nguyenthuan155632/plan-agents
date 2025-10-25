@@ -4,7 +4,7 @@ set -e  # Exit on error
 echo "🚂 Railway Deployment Starting..."
 
 # Get PORT from Railway or default to 3000
-PORT=${PORT:-3000}
+PORT=${PORT:-8080}
 echo "📡 PORT: $PORT"
 
 # Create storage directory

@@ -14,7 +14,7 @@ if [ ! -f /app/storage/conversations.db ]; then
 fi
 
 # Start Next.js ONLY (conversation_processor will run separately)
-echo "⚛️  Starting Next.js on PORT ${PORT:-3000}..."
+echo "⚛️  Starting Next.js on PORT ${PORT:-8080}..."
 cd /app/web
 exec npm start
 
