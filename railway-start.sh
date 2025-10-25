@@ -25,7 +25,7 @@ sleep 3
 
 echo "⚛️  Starting Next.js frontend on port $PORT..."
 cd web
-npm start &
+PORT=$PORT npm start &
 NEXTJS_PID=$!
 
 echo "✅ Both services started!"
