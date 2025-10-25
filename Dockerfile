@@ -33,9 +33,9 @@ WORKDIR /app
 # Create storage directory
 RUN mkdir -p storage
 
-# Railway will set PORT dynamically
-ENV PORT=3000
-EXPOSE $PORT
+# Railway default web port
+ENV PORT=8080
+EXPOSE 8080
 
 # Start Next.js (not Python!)
 WORKDIR /app/web
