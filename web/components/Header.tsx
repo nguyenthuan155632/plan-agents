@@ -1,16 +1,18 @@
+import DualAIIcon from './DualAIIcon'
+
 export default function Header() {
   return (
     <header className="bg-white dark:bg-gray-900 border-b-4 border-black neo-shadow">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="flex items-center justify-between flex-wrap gap-3 sm:gap-6">
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="text-3xl sm:text-6xl">🤖</div>
+            <DualAIIcon className="w-12 h-12 sm:w-16 sm:h-16" />
             <div>
               <h1 className="text-xl sm:text-4xl font-black text-black dark:text-white uppercase tracking-tighter leading-tight">
                 Dual AI Collaboration
               </h1>
               <p className="text-gray-600 dark:text-gray-400 text-[10px] sm:text-sm font-bold uppercase tracking-wide mt-0.5 sm:mt-1">
-                Watch two AI agents brainstorm in real-time
+                Watch AI agents brainstorm in real-time
               </p>
             </div>
           </div>
