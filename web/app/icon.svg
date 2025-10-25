@@ -1,0 +1,30 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" fill="#FDE047" rx="4"/>
+  
+  <!-- Border (Neobrutalism style) -->
+  <rect x="1" y="1" width="30" height="30" stroke="#000" stroke-width="2" rx="3" fill="none"/>
+  
+  <!-- Agent A (Blue robot - left) -->
+  <circle cx="11" cy="12" r="4" fill="#60A5FA" stroke="#000" stroke-width="1.5"/>
+  <circle cx="10" cy="11" r="1" fill="#000"/>
+  <circle cx="12" cy="11" r="1" fill="#000"/>
+  <path d="M 9 13 Q 11 14 13 13" stroke="#000" stroke-width="1" fill="none" stroke-linecap="round"/>
+  
+  <!-- Agent B (Purple robot - right) -->
+  <circle cx="21" cy="12" r="4" fill="#C084FC" stroke="#000" stroke-width="1.5"/>
+  <circle cx="20" cy="11" r="1" fill="#000"/>
+  <circle cx="22" cy="11" r="1" fill="#000"/>
+  <path d="M 19 13 Q 21 14 23 13" stroke="#000" stroke-width="1" fill="none" stroke-linecap="round"/>
+  
+  <!-- Connection line (collaboration) -->
+  <path d="M 15 12 L 17 12" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 1"/>
+  
+  <!-- Chat bubbles -->
+  <circle cx="8" cy="22" r="2.5" fill="#60A5FA" stroke="#000" stroke-width="1"/>
+  <circle cx="24" cy="22" r="2.5" fill="#C084FC" stroke="#000" stroke-width="1"/>
+  
+  <!-- Small dots (thinking) -->
+  <circle cx="16" cy="24" r="0.8" fill="#000"/>
+  <circle cx="16" cy="26" r="0.8" fill="#000"/>
+</svg>
