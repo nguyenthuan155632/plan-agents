@@ -33,12 +33,10 @@ WORKDIR /app
 # Create storage directory
 RUN mkdir -p storage
 
-# Expose ports
-# Port 3000 for Next.js frontend (main port)
+# Expose port 3000 (Next.js)
 EXPOSE 3000
-# Port 8000 for Python backend (internal)
-EXPOSE 8000
 
-# Start both services
-CMD ["bash", "railway-start.sh"]
+# Start Next.js (not Python!)
+WORKDIR /app/web
+CMD ["npm", "start"]
 
