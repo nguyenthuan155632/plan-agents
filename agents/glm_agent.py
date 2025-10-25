@@ -56,28 +56,35 @@ class GLMAgent(BaseAgent):
         Returns:
             'vietnamese' or 'english'
         """
-        # Vietnamese-specific characters
-        vietnamese_chars = r'[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]'
+        # Vietnamese-specific characters (more comprehensive)
+        vietnamese_chars = r'[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]'
         
         # Count Vietnamese characters
-        vietnamese_count = len(re.findall(vietnamese_chars, text.lower()))
+        vietnamese_count = len(re.findall(vietnamese_chars, text))
         
-        # If more than 3 Vietnamese characters found, assume Vietnamese
-        if vietnamese_count > 3:
+        # If ANY Vietnamese characters found, it's Vietnamese
+        if vietnamese_count > 0:
             return 'vietnamese'
         
-        # Check for common Vietnamese words (case insensitive)
+        # Check for common Vietnamese words (more comprehensive, case insensitive)
         vietnamese_words = [
             'là', 'của', 'và', 'có', 'các', 'được', 'cho', 'với', 'này', 'trong',
             'để', 'một', 'như', 'hay', 'nên', 'sẽ', 'thì', 'không', 'đã', 'khi',
-            'nào', 'gì', 'bao', 'nhiêu', 'tại', 'sao', 'dùng', 'dự', 'án'
+            'nào', 'gì', 'bao', 'nhiêu', 'tại', 'sao', 'dùng', 'dự', 'án', 'theo',
+            'về', 'từ', 'trên', 'những', 'đều', 'cũng', 'sau', 'nhưng', 'vì',
+            'năm', 'tôi', 'bạn', 'chúng', 'mình', 'kinh', 'tế', 'thế', 'nào',
+            'làm', 'việc', 'ngày', 'giờ', 'người', 'thời', 'gian', 'đang', 'rất'
         ]
         
-        words = text.lower().split()
+        # Normalize and split text
+        text_lower = text.lower()
+        words = re.findall(r'\b\w+\b', text_lower)
+        
+        # Count Vietnamese words
         vietnamese_word_count = sum(1 for word in words if word in vietnamese_words)
         
-        # If more than 10% of words are Vietnamese, assume Vietnamese
-        if len(words) > 0 and vietnamese_word_count / len(words) > 0.1:
+        # If more than 5% of words are Vietnamese OR at least 2 Vietnamese words found, assume Vietnamese
+        if len(words) > 0 and (vietnamese_word_count / len(words) > 0.05 or vietnamese_word_count >= 2):
             return 'vietnamese'
         
         return 'english'
