@@ -1,0 +1,109 @@
+'use client'
+
+import { useState } from 'react'
+
+interface ContinueConversationProps {
+  sessionId: string
+  isWaitingForInput: boolean
+  onMessageSent: () => void
+}
+
+export default function ContinueConversation({
+  sessionId,
+  isWaitingForInput,
+  onMessageSent
+}: ContinueConversationProps) {
+  const [message, setMessage] = useState('')
+  const [isSending, setIsSending] = useState(false)
+  const [error, setError] = useState('')
+
+  if (!isWaitingForInput) {
+    return null // Don't show input if not waiting for human input
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!message.trim()) {
+      setError('Please enter a message')
+      return
+    }
+
+    setIsSending(true)
+    setError('')
+
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}/continue`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: message.trim() }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message')
+      }
+
+      setMessage('')
+      onMessageSent()
+
+    } catch (err: any) {
+      setError(err.message || 'Failed to send message')
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  return (
+    <div className="bg-yellow-300 dark:bg-yellow-400 rounded-none neo-border neo-shadow-lg p-6">
+      <h3 className="text-xl font-black text-black mb-4 flex items-center uppercase tracking-wide">
+        <span className="mr-3 text-2xl">✋</span>
+        Agents are waiting for your input
+      </h3>
+
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <div>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Enter your message to continue the conversation..."
+            rows={3}
+            className="w-full px-4 py-3 bg-white dark:bg-gray-800 neo-border-thin text-black dark:text-white placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none"
+            disabled={isSending}
+          />
+        </div>
+
+        {error && (
+          <div className="p-3 bg-red-300 dark:bg-red-400 neo-border-thin text-black text-sm font-bold">
+            ⚠️ {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={isSending}
+          className="w-full px-6 py-3 bg-pink-400 hover:bg-pink-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center"
+        >
+          {isSending ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Sending...
+            </>
+          ) : (
+            <>
+              <span className="mr-2 text-xl">💬</span>
+              Send Message
+            </>
+          )}
+        </button>
+      </form>
+    </div>
+  )
+}
+

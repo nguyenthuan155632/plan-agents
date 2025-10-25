@@ -1,0 +1,19 @@
+{
+  "name": "plan-agents",
+  "version": "1.0.0",
+  "description": "Dual AI Collaboration Framework",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cd web && npm run dev",
+    "build": "cd web && npm run build",
+    "db:init": "python scripts/init_db.py",
+    "start": "python main.py"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "collaboration"
+  ],
+  "author": "",
+  "license": "MIT"
+}

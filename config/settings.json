@@ -1,0 +1,31 @@
+{
+  "timeout_seconds": 60,
+  "max_turn_length": 500,
+  "auto_continue": true,
+  "log_level": "INFO",
+  "database": {
+    "path": "storage/conversations.db"
+  },
+  "agents": {
+    "agent_a": {
+      "persona": "code reviewer and analyzer",
+      "focus": [
+        "quality",
+        "best practices",
+        "maintainability"
+      ]
+    },
+    "agent_b": {
+      "persona": "creative problem solver",
+      "focus": [
+        "innovation",
+        "user experience",
+        "alternatives"
+      ]
+    }
+  },
+  "web_ui": {
+    "port": 3000,
+    "refresh_interval_ms": 1000
+  }
+}
