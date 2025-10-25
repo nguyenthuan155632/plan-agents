@@ -8,10 +8,10 @@ const dbPath = path.join(projectRoot, 'storage', 'conversations.db')
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+): Promise<NextResponse> {
   const sessionId = params.id
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     const db = new sqlite3.Database(dbPath, (err) => {
       if (err) {
         console.error('❌ Failed to open database:', err)
