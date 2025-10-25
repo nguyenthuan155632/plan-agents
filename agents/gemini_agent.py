@@ -72,12 +72,37 @@ class GeminiAgent(BaseAgent):
         
         # Check for common Vietnamese words (more comprehensive, case insensitive)
         vietnamese_words = [
-            'là', 'của', 'và', 'có', 'các', 'được', 'cho', 'với', 'này', 'trong',
-            'để', 'một', 'như', 'hay', 'nên', 'sẽ', 'thì', 'không', 'đã', 'khi',
-            'nào', 'gì', 'bao', 'nhiêu', 'tại', 'sao', 'dùng', 'dự', 'án', 'theo',
-            'về', 'từ', 'trên', 'những', 'đều', 'cũng', 'sau', 'nhưng', 'vì',
-            'năm', 'tôi', 'bạn', 'chúng', 'mình', 'kinh', 'tế', 'thế', 'nào',
-            'làm', 'việc', 'ngày', 'giờ', 'người', 'thời', 'gian', 'đang', 'rất'
+            # Common verbs
+            'là', 'có', 'được', 'cho', 'đã', 'sẽ', 'làm', 'nói', 'đi', 'tới', 'về',
+            'đến', 'ra', 'vào', 'lên', 'xuống', 'qua', 'thấy', 'biết', 'muốn', 'cần',
+            'phải', 'nên', 'cũng', 'đang', 'bắt', 'gặp', 'chạy', 'đọc', 'viết', 'nghĩ',
+            
+            # Common nouns
+            'người', 'năm', 'ngày', 'giờ', 'tháng', 'tuần', 'việc', 'thời', 'gian',
+            'chỗ', 'nơi', 'nhà', 'đường', 'phố', 'thành', 'phố', 'quốc', 'gia',
+            'công', 'ty', 'dự', 'án', 'kinh', 'tế', 'tiền', 'bạc', 'lương', 'thu',
+            
+            # Common adjectives
+            'tốt', 'xấu', 'lớn', 'nhỏ', 'dài', 'ngắn', 'cao', 'thấp', 'nhanh', 'chậm',
+            'mới', 'cũ', 'đẹp', 'xấu', 'tốt', 'dễ', 'khó', 'rộng', 'hẹp', 'sạch',
+            
+            # Prepositions & conjunctions
+            'của', 'và', 'với', 'từ', 'cho', 'tại', 'trong', 'ngoài', 'trên', 'dưới',
+            'sau', 'trước', 'bên', 'giữa', 'để', 'vì', 'nếu', 'mà', 'nhưng', 'hay',
+            
+            # Pronouns
+            'tôi', 'bạn', 'anh', 'chị', 'em', 'họ', 'chúng', 'ta', 'mình', 'người',
+            
+            # Question words
+            'gì', 'nào', 'đâu', 'sao', 'như', 'thế', 'bao', 'nhiêu', 'mấy', 'ai',
+            
+            # Common phrases
+            'này', 'đó', 'kia', 'các', 'những', 'một', 'hai', 'ba', 'nhiều', 'ít',
+            'thì', 'không', 'chưa', 'rồi', 'đều', 'cả', 'mọi', 'vẫn', 'còn', 'đã',
+            
+            # Common verbs (more)
+            'xem', 'nghe', 'ăn', 'uống', 'mua', 'bán', 'dùng', 'dùng', 'học', 'dạy',
+            'hiểu', 'nhớ', 'quên', 'thích', 'ghét', 'yêu', 'giúp', 'hỏi', 'trả', 'lời'
         ]
         
         # Normalize and split text
