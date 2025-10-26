@@ -85,9 +85,10 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
     const container = messagesContainerRef.current
     if (!container) return
 
-    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150
+    const scrollDistanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+    const isNearBottom = scrollDistanceFromBottom < 100
 
-    // Only auto-scroll if user is near bottom
+    // Only auto-scroll if user is near bottom (within 100px)
     if (isNearBottom) {
       scrollToBottom()
     }
@@ -307,9 +308,12 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
     const container = messagesContainerRef.current
     if (!container) return
 
-    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150
+    // Increase threshold to 200px and only scroll if VERY close to bottom
+    const scrollDistanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+    const isVeryNearBottom = scrollDistanceFromBottom < 50
 
-    if (isNearBottom) {
+    // Only auto-scroll if user is very close to bottom (within 50px)
+    if (isVeryNearBottom) {
       scrollToBottom()
     }
   }, [])
@@ -474,12 +478,13 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
       {showScrollButton && (
         <button
           onClick={handleScrollToBottom}
-          className="absolute bottom-8 right-8 bg-orange-400 hover:bg-orange-500 text-black rounded-none p-3 neo-border neo-shadow-hover z-10"
+          className="fixed bottom-6 right-6 bg-orange-400 hover:bg-orange-500 text-black rounded-none p-3 sm:p-4 neo-border neo-shadow-hover z-50 animate-bounce"
           aria-label="Scroll to bottom"
+          title="Scroll to bottom (Auto-scroll paused)"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-6 w-6 sm:h-7 sm:w-7"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

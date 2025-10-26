@@ -1,15 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface StartConversationProps {
   onSessionCreated: (sessionId: string) => void
+  hasActiveSession?: boolean
 }
 
-export default function StartConversation({ onSessionCreated }: StartConversationProps) {
+export default function StartConversation({ onSessionCreated, hasActiveSession = false }: StartConversationProps) {
   const [topic, setTopic] = useState('')
   const [isStarting, setIsStarting] = useState(false)
   const [error, setError] = useState('')
+  const [isCollapsed, setIsCollapsed] = useState(hasActiveSession)
+
+  // Auto-collapse when session becomes active
+  useEffect(() => {
+    if (hasActiveSession) {
+      setIsCollapsed(true)
+    }
+  }, [hasActiveSession])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,55 +57,68 @@ export default function StartConversation({ onSessionCreated }: StartConversatio
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow p-4 sm:p-6">
-      <h2 className="text-xl sm:text-2xl font-black text-black dark:text-white mb-4 sm:mb-6 flex items-center uppercase tracking-tight">
-        <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">✨</span>
-        <span className="text-base sm:text-2xl">Start New Conversation</span>
-      </h2>
+    <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow">
+      {/* Header - Always visible, clickable to toggle */}
+      <button
+        type="button"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="w-full p-4 sm:p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+      >
+        <h2 className="text-xl sm:text-2xl font-black text-black dark:text-white flex items-center uppercase tracking-tight">
+          <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">✨</span>
+          <span className="text-base sm:text-2xl">Start New Conversation</span>
+        </h2>
+        <span className="text-xl sm:text-2xl text-black dark:text-white font-black">
+          {isCollapsed ? '▼' : '▲'}
+        </span>
+      </button>
 
-      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-        <div>
-          <label htmlFor="topic" className="block text-xs sm:text-sm font-black text-black dark:text-white mb-2 sm:mb-3 uppercase tracking-wide">
-            What topic would you like the agents to discuss?
-          </label>
-          <textarea
-            id="topic"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g., Best practices for API design, React vs Vue, Microservices vs Monolith, etc."
-            rows={4}
-            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white dark:bg-gray-800 neo-border-thin text-black dark:text-white placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none text-sm sm:text-base"
-            disabled={isStarting}
-          />
-        </div>
-
-        {error && (
-          <div className="p-3 sm:p-4 bg-red-300 dark:bg-red-400 neo-border-thin text-black text-xs sm:text-sm font-bold">
-            ⚠️ {error}
+      {/* Form - Collapsible with smooth animation */}
+      <div className={`overflow-hidden transition-all duration-300 ${isCollapsed ? 'max-h-0' : 'max-h-[600px]'}`}>
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
+          <div>
+            <label htmlFor="topic" className="block text-xs sm:text-sm font-black text-black dark:text-white mb-2 sm:mb-3 uppercase tracking-wide">
+              What topic would you like the agents to discuss?
+            </label>
+            <textarea
+              id="topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g., Best practices for API design, React vs Vue, Microservices vs Monolith, etc."
+              rows={4}
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white dark:bg-gray-800 neo-border-thin text-black dark:text-white placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none text-sm sm:text-base"
+              disabled={isStarting}
+            />
           </div>
-        )}
 
-        <button
-          type="submit"
-          disabled={isStarting}
-          className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-green-400 hover:bg-green-500 active:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide text-base sm:text-lg flex items-center justify-center touch-manipulation"
-        >
-          {isStarting ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Starting...
-            </>
-          ) : (
-            <>
-              <span className="mr-2 text-xl sm:text-2xl">🚀</span>
-              Start Discussion
-            </>
+          {error && (
+            <div className="p-3 sm:p-4 bg-red-300 dark:bg-red-400 neo-border-thin text-black text-xs sm:text-sm font-bold">
+              ⚠️ {error}
+            </div>
           )}
-        </button>
-      </form>
+
+          <button
+            type="submit"
+            disabled={isStarting}
+            className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-green-400 hover:bg-green-500 active:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide text-base sm:text-lg flex items-center justify-center touch-manipulation"
+          >
+            {isStarting ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Starting...
+              </>
+            ) : (
+              <>
+                <span className="mr-2 text-xl sm:text-2xl">🚀</span>
+                Start Discussion
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

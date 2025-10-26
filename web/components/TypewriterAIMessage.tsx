@@ -44,7 +44,11 @@ export default function TypewriterAIMessage({
       if (currentIndex < text.length) {
         currentIndex++
         setDisplayedText(text.slice(0, currentIndex))
-        if (onUpdateRef.current) onUpdateRef.current()
+
+        // Only call onUpdate every 10 characters or at line breaks to reduce scroll updates
+        if (onUpdateRef.current && (currentIndex % 10 === 0 || text[currentIndex - 1] === '\n')) {
+          onUpdateRef.current()
+        }
       } else {
         setIsComplete(true)
         clearInterval(interval)

@@ -38,7 +38,7 @@ class GeminiAgent(BaseAgent):
             generation_config={
                 "temperature": 0.9,
                 "top_p": 0.95,
-                "max_output_tokens": 2048,
+                "max_output_tokens": None,
             }
         )
         

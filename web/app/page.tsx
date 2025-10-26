@@ -61,7 +61,7 @@ export default function Home() {
           {/* Main Content - Expands when sidebar collapsed */}
           <div className={`space-y-4 sm:space-y-6 transition-all duration-300 ${isSidebarCollapsed ? 'lg:col-span-4' : 'lg:col-span-3'}`}>
             {/* Start New Conversation */}
-            <StartConversation onSessionCreated={handleSessionCreated} />
+            <StartConversation onSessionCreated={handleSessionCreated} hasActiveSession={!!selectedSession} />
 
             {/* Conversation View */}
             {selectedSession ? (
