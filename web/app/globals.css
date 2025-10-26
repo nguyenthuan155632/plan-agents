@@ -115,3 +115,43 @@ body {
   counter-increment: list-counter;
 }
 
+/* Override highlight.js comment colors for better readability */
+.hljs-comment,
+.hljs-quote,
+.hljs-subst {
+  color: #374151 !important; /* gray-700 - much darker, bold */
+  font-style: italic;
+  font-weight: 600;
+}
+
+.hljs-string {
+  color: #b40299 !important;
+}
+
+.hljs-subst {
+  color: #00788a !important;
+}
+
+.hljs-built_in {
+  color: #009616 !important;
+}
+
+.hljs-number {
+  color: #960000 !important;
+}
+
+.hljs-title.function_ {
+  color: #bf3900 !important;
+}
+
+.hljs-title.class_ {
+  color: #bf3900 !important;
+}
+
+.hljs-title.method_ {
+  color: #bf3900 !important;
+}
+
+.hljs-title.variable_ {
+  color: #bf3900 !important;
+}
