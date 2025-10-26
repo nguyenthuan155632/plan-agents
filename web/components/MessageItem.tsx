@@ -68,7 +68,7 @@ const MessageItem = memo(function MessageItem({
             // Use TypewriterAIMessage for Agent messages (markdown support)
             <TypewriterAIMessage
               text={message.content}
-              speed={120}
+              speed={80}
               onComplete={onAnimationComplete}
               onUpdate={onTypingUpdate}
             />

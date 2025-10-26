@@ -517,14 +517,46 @@ Recommendation: [...]"""
 - Start thinking about summary"""
         elif exchange_count >= 2:
             if self.detected_language == 'vietnamese':
-                convergence_guidance = "\n\n🔥 2-3 lần: TRANH LUẬN mạnh mẽ! Challenge ý kiến đối phương, bảo vệ quan điểm của bạn, chỉ ra lỗ hổng. Đừng đồng ý dễ dàng!"
+                convergence_guidance = """
+
+🔥 2-3 lần: TRANH LUẬN mạnh mẽ và KIÊN ĐỊNH!
+- BẢO VỆ quan điểm ban đầu của bạn
+- Challenge mạnh mẽ ý kiến đối phương
+- Chỉ ra lỗ hổng trong lập luận của họ
+- Đưa ra bằng chứng, ví dụ cụ thể để chứng minh quan điểm của BẠN
+- ⚠️ KHÔNG đổi ý kiến dễ dàng - chỉ thừa nhận khi đối phương có điểm THỰC SỰ thuyết phục
+- Có thể nói: "Tôi vẫn nghĩ...", "Tôi vẫn tin rằng...", "Nhưng quan điểm của tôi là..."
+- ĐỪNG đồng ý chỉ vì lịch sự!"""
             else:
-                convergence_guidance = "\n\n🔥 2-3 exchanges: DEBATE strongly! Challenge their view, defend your position, point out flaws. Don't agree easily!"
+                convergence_guidance = """
+
+🔥 2-3 exchanges: DEBATE strongly and STAND YOUR GROUND!
+- DEFEND your initial position
+- Challenge their view strongly
+- Point out flaws in their reasoning
+- Provide evidence, concrete examples to prove YOUR point
+- ⚠️ DON'T change your mind easily - only concede when they have TRULY compelling points
+- Use phrases like: "I still think...", "I maintain that...", "But my position is..."
+- DON'T agree just to be polite!"""
         else:
             if self.detected_language == 'vietnamese':
-                convergence_guidance = "\n\n💪 Lần đầu: Trình bày quan điểm MẠNH MẼ và RÕ RÀNG của bạn. Đừng ngại bất đồng với đối phương!"
+                convergence_guidance = """
+
+💪 Lần đầu: Xác lập lập trường MẠNH MẼ và RÕ RÀNG!
+- Trình bày quan điểm CỤ THỂ và KIÊN ĐỊNH của bạn
+- Đưa ra lý do, bằng chứng rõ ràng
+- Đừng ngại bất đồng MẠNH MẼ với đối phương
+- Tạo nền tảng cho các lần tranh luận sau
+- ⚠️ Đây là QUAN ĐIỂM của bạn - hãy TỰ TIN và KIÊN ĐỊNH với nó!"""
             else:
-                convergence_guidance = "\n\n💪 First exchange: Present your STRONG, CLEAR perspective. Don't be afraid to disagree!"
+                convergence_guidance = """
+
+💪 First exchange: Establish your STRONG, CLEAR position!
+- Present your SPECIFIC and FIRM perspective
+- Provide clear reasoning and evidence
+- Don't be afraid to STRONGLY disagree
+- Set the foundation for future debates
+- ⚠️ This is YOUR position - be CONFIDENT and FIRM with it!"""
         
         # Build context about who human is addressing
         addressing_context = ""
