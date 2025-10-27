@@ -7,11 +7,10 @@ import os
 import time
 import logging
 from pathlib import Path
-from typing import Optional
 from dotenv import load_dotenv
 from core.database import Database
 from core.coordinator import Coordinator
-from core.message import Message, Role, Signal, Session
+from core.message import Role, Signal
 from agents.glm_agent import GLMAgent
 from agents.gemini_agent import GeminiAgent
 
@@ -35,9 +34,15 @@ class ConversationProcessor:
         # Load API keys from environment variables
         z_ai_api_key = os.getenv('ZAI_API_KEY')
         z_ai_base_url = os.getenv('ZAI_BASE_URL', 'https://api.z.ai/api/coding/paas/v4')
-        gemini_api_key = os.getenv('GEMINI_API_KEY')
         glm_model = os.getenv('GLM_MODEL', 'glm-4.5-air')
+
+        gemini_api_key = os.getenv('GEMINI_API_KEY')
         gemini_model = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
+
+        # openai_api_key = os.getenv('OPENAI_API_KEY')
+        # openai_base_url = os.getenv('OPENAI_BASE_URL', 'https://api.openai.com/v1')
+        # openai_model = os.getenv('OPENAI_MODEL', 'gpt-5')
+
         max_turn_length = int(os.getenv('MAX_TURN_LENGTH', '10000'))
         
         # Validate required API keys
@@ -45,6 +50,8 @@ class ConversationProcessor:
             raise ValueError("ZAI_API_KEY not found in environment variables. Please check your .env file.")
         if not gemini_api_key:
             raise ValueError("GEMINI_API_KEY not found in environment variables. Please check your .env file.")
+        # if not openai_api_key:
+        #     raise ValueError("OPENAI_API_KEY not found in environment variables. Please check your .env file.")
         
         # GLM Configuration for Agent A
         glm_config = {
@@ -53,15 +60,21 @@ class ConversationProcessor:
             "model": glm_model,
             "max_turn_length": max_turn_length
         }
-        
+
+        # openai_config = {
+        #     "openai_api_key": openai_api_key,
+        #     "openai_base_url": openai_base_url,
+        #     "model": openai_model
+        # }
+
         # Gemini Configuration for Agent B
         gemini_config = {
             "gemini_api_key": gemini_api_key,
             "model": gemini_model,
             "max_turn_length": max_turn_length
         }
-        
-        # Agent A uses GLM, Agent B uses Gemini
+
+        # Agent A uses OpenAI, Agent B uses Gemini
         self.agent_a = GLMAgent(Role.AGENT_A, self.db, glm_config)
         self.agent_b = GeminiAgent(Role.AGENT_B, self.db, gemini_config)
         
