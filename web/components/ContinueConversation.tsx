@@ -58,8 +58,8 @@ export default function ContinueConversation({
   }
 
   return (
-    <div className="bg-hacker-amber rounded-none neo-border neo-shadow-lg p-4 sm:p-6 border-2 border-hacker-terminal">
-      <h3 className="text-lg sm:text-xl font-black text-hacker-bg mb-3 sm:mb-4 flex items-center uppercase tracking-wide font-mono">
+    <div className="bg-yellow-300 rounded-none neo-border neo-shadow-lg p-4 sm:p-6">
+      <h3 className="text-lg sm:text-xl font-black text-black mb-3 sm:mb-4 flex items-center uppercase tracking-wide font-mono">
         <span className="mr-2 sm:mr-3 text-xl sm:text-2xl">✋</span>
         <span className="text-sm sm:text-xl font-mono">Agents are waiting for your input</span>
       </h3>
@@ -71,13 +71,13 @@ export default function ContinueConversation({
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Enter your message to continue the conversation..."
             rows={3}
-            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white neo-border-thin text-black placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none text-sm sm:text-base font-mono border-2 border-hacker-terminal"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white neo-border-thin text-black placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none text-sm sm:text-base font-mono"
             disabled={isSending}
           />
         </div>
 
         {error && (
-          <div className="p-3 bg-hacker-red neo-border-thin text-hacker-bg text-xs sm:text-sm font-bold font-mono border-2 border-hacker-terminal">
+          <div className="p-3 bg-red-300 neo-border-thin text-black text-xs sm:text-sm font-bold font-mono">
             ⚠️ {error}
           </div>
         )}
@@ -85,11 +85,11 @@ export default function ContinueConversation({
         <button
           type="submit"
           disabled={isSending}
-          className="w-full px-4 sm:px-6 py-3 bg-hacker-green hover:bg-green-500 active:bg-green-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-hacker-bg font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide text-sm sm:text-base flex items-center justify-center touch-manipulation font-mono"
+          className="w-full px-4 sm:px-6 py-3 bg-pink-400 hover:bg-pink-500 active:bg-pink-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide text-sm sm:text-base flex items-center justify-center touch-manipulation font-mono"
         >
           {isSending ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-hacker-bg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>

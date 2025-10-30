@@ -366,16 +366,16 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
 
   if (loading) {
     return (
-      <div className="bg-hacker-bg rounded-none neo-border neo-shadow p-6 border-2 border-hacker-terminal">
-        <div className="text-hacker-terminal text-center py-8 font-bold font-mono">Loading conversation...</div>
+      <div className="bg-white rounded-none neo-border neo-shadow p-6">
+        <div className="text-black text-center py-8 font-bold font-mono">Loading conversation...</div>
       </div>
     )
   }
 
   return (
-    <div className="bg-hacker-bg rounded-none neo-border neo-shadow p-3 sm:p-6 relative border-2 border-hacker-terminal">
+    <div className="bg-white rounded-none neo-border neo-shadow p-3 sm:p-6 relative">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-        <h2 className="text-xl sm:text-2xl font-black text-hacker-terminal flex items-center uppercase tracking-tight font-mono">
+        <h2 className="text-xl sm:text-2xl font-black text-black flex items-center uppercase tracking-tight font-mono">
           <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">💬</span>
           <span className="text-base sm:text-2xl font-mono">Conversation</span>
         </h2>
@@ -385,7 +385,7 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
           {isSessionActive && !userRequestedInput && messages.length > 0 && messages[messages.length - 1]?.signal !== 'handover' && (
             <button
               onClick={handleJumpIn}
-              className="px-3 sm:px-4 py-2 bg-hacker-blue hover:bg-blue-500 active:bg-blue-600 text-hacker-bg font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center space-x-2 text-sm sm:text-base touch-manipulation font-mono"
+              className="px-3 sm:px-4 py-2 bg-blue-400 hover:bg-blue-500 active:bg-blue-600 text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center space-x-2 text-sm sm:text-base touch-manipulation font-mono"
             >
               <span className="text-base sm:text-lg">✋</span>
               <span className="font-mono">Jump In</span>
@@ -396,7 +396,7 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
           {isSessionActive && messages.length > 0 && (
             <button
               onClick={handleStopConversation}
-              className="px-3 sm:px-4 py-2 bg-hacker-red hover:bg-red-500 active:bg-red-600 text-hacker-bg font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center space-x-2 text-sm sm:text-base touch-manipulation font-mono"
+              className="px-3 sm:px-4 py-2 bg-red-400 hover:bg-red-500 active:bg-red-600 text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center space-x-2 text-sm sm:text-base touch-manipulation font-mono"
             >
               <span className="text-base sm:text-lg">🛑</span>
               <span className="font-mono">Stop</span>
@@ -408,7 +408,7 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="space-y-3 sm:space-y-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth custom-scrollbar border-2 border-hacker-terminal p-2"
+        className="space-y-3 sm:space-y-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth custom-scrollbar p-2"
       >
         {visibleMessages.map((message, index) => {
           const colors = getRoleColor(message.role)
@@ -445,8 +445,8 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
 
         {/* Show thinking indicator when waiting for next agent */}
         {isWaitingForNextAgent && (
-          <div className="flex items-center space-x-3 p-4 rounded-none bg-hacker-amber neo-border-thin neo-shadow animate-pulse border-2 border-hacker-terminal">
-            <span className="text-hacker-bg text-sm font-black uppercase font-mono">
+          <div className="flex items-center space-x-3 p-4 rounded-none bg-yellow-300 neo-border-thin neo-shadow animate-pulse">
+            <span className="text-black text-sm font-black uppercase font-mono">
               🤔 Thinking...
             </span>
           </div>
@@ -454,13 +454,13 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
 
         {/* Show thinking indicator if there are more messages to display */}
         {isSessionActive && visibleMessages.length < messages.length && currentlyAnimatingIndex < 0 && !isWaitingForNextAgent && (
-          <div className="flex items-center space-x-2 p-4 rounded-none bg-gray-800 neo-border-thin border-2 border-hacker-terminal">
+          <div className="flex items-center space-x-2 p-4 rounded-none bg-gray-200 neo-border-thin">
             <div className="flex space-x-1">
-              <div className="w-2 h-2 bg-hacker-terminal rounded-none animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 bg-hacker-terminal rounded-none animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 bg-hacker-terminal rounded-none animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <div className="w-2 h-2 bg-black rounded-none animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-black rounded-none animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-black rounded-none animate-bounce" style={{ animationDelay: '300ms' }}></div>
             </div>
-            <span className="text-hacker-terminal text-sm font-bold font-mono">
+            <span className="text-black text-sm font-bold font-mono">
               Loading next message...
             </span>
           </div>
@@ -473,7 +473,7 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
       {showScrollButton && (
         <button
           onClick={handleScrollToBottom}
-          className="fixed bottom-6 right-6 bg-hacker-blue hover:bg-blue-500 text-hacker-terminal rounded-none p-3 sm:p-4 neo-border neo-shadow-hover z-50 animate-bounce border-2 border-hacker-terminal"
+          className="fixed bottom-6 right-6 bg-orange-400 hover:bg-orange-500 text-black rounded-none p-3 sm:p-4 neo-border neo-shadow-hover z-50 animate-bounce"
           aria-label="Scroll to bottom"
           title="Scroll to bottom (Auto-scroll paused)"
         >
@@ -496,7 +496,7 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
       )}
 
       {visibleMessages.length === 0 && (
-        <div className="text-hacker-terminal text-center py-8 font-bold font-mono">
+        <div className="text-black text-center py-8 font-bold font-mono">
           No messages in this conversation yet
         </div>
       )}

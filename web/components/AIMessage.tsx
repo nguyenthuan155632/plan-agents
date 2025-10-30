@@ -150,7 +150,7 @@ export default function AIMessage({ content, role }: AIMessageProps) {
 
           // Emphasis/Italic
           em: ({ children }) => (
-            <em className="italic text-purple-700 dark:text-purple-400 font-semibold">
+            <em className="italic text-red-700 font-semibold">
               {children}
             </em>
           ),
