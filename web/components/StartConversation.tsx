@@ -62,7 +62,7 @@ export default function StartConversation({ onSessionCreated, hasActiveSession =
       <button
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="w-full p-4 sm:p-6 flex items-center justify-between text-hacker-terminal hover:bg-hacker-amber transition-colors"
+        className="w-full p-4 sm:p-6 flex items-center justify-between text-hacker-terminal hover:bg-gray-100 transition-colors"
       >
         <h2 className="text-xl sm:text-2xl font-black text-hacker-terminal flex items-center uppercase tracking-tight font-mono">
           <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl hacker-green">✨</span>
