@@ -57,18 +57,18 @@ export default function StartConversation({ onSessionCreated, hasActiveSession =
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow">
+    <div className="bg-hacker-bg rounded-none neo-border neo-shadow border-2 border-hacker-terminal">
       {/* Header - Always visible, clickable to toggle */}
       <button
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="w-full p-4 sm:p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="w-full p-4 sm:p-6 flex items-center justify-between text-hacker-terminal hover:bg-hacker-amber transition-colors"
       >
-        <h2 className="text-xl sm:text-2xl font-black text-black dark:text-white flex items-center uppercase tracking-tight">
-          <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">✨</span>
-          <span className="text-base sm:text-2xl">Start New Conversation</span>
+        <h2 className="text-xl sm:text-2xl font-black text-hacker-terminal flex items-center uppercase tracking-tight font-mono">
+          <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl hacker-green">✨</span>
+          <span className="text-base sm:text-2xl font-mono">Start New Conversation</span>
         </h2>
-        <span className="text-xl sm:text-2xl text-black dark:text-white font-black">
+        <span className="text-xl sm:text-2xl text-hacker-terminal font-black">
           {isCollapsed ? '▼' : '▲'}
         </span>
       </button>
@@ -77,7 +77,7 @@ export default function StartConversation({ onSessionCreated, hasActiveSession =
       <div className={`overflow-hidden transition-all duration-300 ${isCollapsed ? 'max-h-0' : 'max-h-[600px]'}`}>
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
           <div>
-            <label htmlFor="topic" className="block text-xs sm:text-sm font-black text-black dark:text-white mb-2 sm:mb-3 uppercase tracking-wide">
+            <label htmlFor="topic" className="block text-xs sm:text-sm font-black text-hacker-terminal mb-2 sm:mb-3 uppercase tracking-wide font-mono">
               What topic would you like the agents to discuss?
             </label>
             <textarea
@@ -86,13 +86,13 @@ export default function StartConversation({ onSessionCreated, hasActiveSession =
               onChange={(e) => setTopic(e.target.value)}
               placeholder="e.g., Best practices for API design, React vs Vue, Microservices vs Monolith, etc."
               rows={4}
-              className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white dark:bg-gray-800 neo-border-thin text-black dark:text-white placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none text-sm sm:text-base"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white neo-border-thin text-black placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none text-sm sm:text-base font-mono border-2 border-hacker-terminal"
               disabled={isStarting}
             />
           </div>
 
           {error && (
-            <div className="p-3 sm:p-4 bg-red-300 dark:bg-red-400 neo-border-thin text-black text-xs sm:text-sm font-bold">
+            <div className="p-3 sm:p-4 bg-hacker-red neo-border-thin text-hacker-bg text-xs sm:text-sm font-bold font-mono border-2 border-hacker-terminal">
               ⚠️ {error}
             </div>
           )}
@@ -100,20 +100,20 @@ export default function StartConversation({ onSessionCreated, hasActiveSession =
           <button
             type="submit"
             disabled={isStarting}
-            className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-green-400 hover:bg-green-500 active:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide text-base sm:text-lg flex items-center justify-center touch-manipulation"
+            className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-hacker-green hover:bg-green-500 active:bg-green-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-hacker-bg font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide text-base sm:text-lg flex items-center justify-center touch-manipulation font-mono"
           >
             {isStarting ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-hacker-bg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Starting...
+                <span className="font-mono">Starting...</span>
               </>
             ) : (
               <>
                 <span className="mr-2 text-xl sm:text-2xl">🚀</span>
-                Start Discussion
+                <span className="font-mono">Start Discussion</span>
               </>
             )}
           </button>

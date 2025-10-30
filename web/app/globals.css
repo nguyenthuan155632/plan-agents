@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -17,6 +19,23 @@
   --neo-orange: #ff8c42;
   --neo-black: #000000;
   --neo-white: #ffffff;
+  
+  /* Hacker Colors */
+  --hacker-bg: #0a0a0a;
+  --hacker-terminal: #00ff41; /* Classic terminal green */
+  --hacker-amber: #ffbf00;
+  --hacker-blue: #00aaff;
+  --hacker-red: #ff0055;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+    --neo-bg: #1a1a1a;
+    --hacker-bg: #0a0a0a;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -29,8 +48,58 @@
 }
 
 body {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Courier New', monospace;
   color: rgb(var(--foreground-rgb));
   background: var(--neo-bg);
+}
+
+/* Subtle Hacker Terminal Colors */
+.hacker-terminal {
+  background-color: var(--hacker-bg) !important;
+  color: var(--hacker-terminal) !important;
+}
+
+.hacker-green {
+  color: var(--hacker-terminal) !important;
+}
+
+.hacker-amber {
+  color: var(--hacker-amber) !important;
+}
+
+.hacker-blue {
+  color: var(--hacker-blue) !important;
+}
+
+.hacker-red {
+  color: var(--hacker-red) !important;
+}
+
+/* Subtle Hacker Text Effect - No animation */
+.hacker-text {
+  color: var(--hacker-terminal) !important;
+}
+
+/* Terminal cursor - Only when needed */
+.cursor::after {
+  content: "_";
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Terminal button style */
+.terminal-button {
+  background-color: transparent;
+  border: 1px solid var(--hacker-terminal);
+  color: var(--hacker-terminal);
+  padding: 0.5rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 @layer utilities {

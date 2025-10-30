@@ -73,4 +73,3 @@ class OpenAIAgent(LLMAgentBase):
         )
         
         return response.choices[0].message.content.strip()
-

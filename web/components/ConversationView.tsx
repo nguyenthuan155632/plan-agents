@@ -366,18 +366,18 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow p-6">
-        <div className="text-gray-600 dark:text-gray-400 text-center py-8 font-bold">Loading conversation...</div>
+      <div className="bg-hacker-bg rounded-none neo-border neo-shadow p-6 border-2 border-hacker-terminal">
+        <div className="text-hacker-terminal text-center py-8 font-bold font-mono">Loading conversation...</div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-none neo-border neo-shadow p-3 sm:p-6 relative">
+    <div className="bg-hacker-bg rounded-none neo-border neo-shadow p-3 sm:p-6 relative border-2 border-hacker-terminal">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-        <h2 className="text-xl sm:text-2xl font-black text-black dark:text-white flex items-center uppercase tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-black text-hacker-terminal flex items-center uppercase tracking-tight font-mono">
           <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">💬</span>
-          <span className="text-base sm:text-2xl">Conversation</span>
+          <span className="text-base sm:text-2xl font-mono">Conversation</span>
         </h2>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
@@ -385,10 +385,10 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
           {isSessionActive && !userRequestedInput && messages.length > 0 && messages[messages.length - 1]?.signal !== 'handover' && (
             <button
               onClick={handleJumpIn}
-              className="px-3 sm:px-4 py-2 bg-green-400 hover:bg-green-500 active:bg-green-600 text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center space-x-2 text-sm sm:text-base touch-manipulation"
+              className="px-3 sm:px-4 py-2 bg-hacker-blue hover:bg-blue-500 active:bg-blue-600 text-hacker-bg font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center space-x-2 text-sm sm:text-base touch-manipulation font-mono"
             >
               <span className="text-base sm:text-lg">✋</span>
-              <span>Jump In</span>
+              <span className="font-mono">Jump In</span>
             </button>
           )}
 
@@ -396,10 +396,10 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
           {isSessionActive && messages.length > 0 && (
             <button
               onClick={handleStopConversation}
-              className="px-3 sm:px-4 py-2 bg-red-400 hover:bg-red-500 active:bg-red-600 text-black font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center space-x-2 text-sm sm:text-base touch-manipulation"
+              className="px-3 sm:px-4 py-2 bg-hacker-red hover:bg-red-500 active:bg-red-600 text-hacker-bg font-black rounded-none neo-border neo-shadow-hover uppercase tracking-wide flex items-center justify-center space-x-2 text-sm sm:text-base touch-manipulation font-mono"
             >
               <span className="text-base sm:text-lg">🛑</span>
-              <span>Stop</span>
+              <span className="font-mono">Stop</span>
             </button>
           )}
         </div>
@@ -408,7 +408,7 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="space-y-3 sm:space-y-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth custom-scrollbar"
+        className="space-y-3 sm:space-y-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth custom-scrollbar border-2 border-hacker-terminal p-2"
       >
         {visibleMessages.map((message, index) => {
           const colors = getRoleColor(message.role)
@@ -445,13 +445,8 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
 
         {/* Show thinking indicator when waiting for next agent */}
         {isWaitingForNextAgent && (
-          <div className="flex items-center space-x-3 p-4 rounded-none bg-yellow-300 dark:bg-yellow-400 neo-border-thin neo-shadow animate-pulse">
-            <div className="flex space-x-1">
-              <div className="w-3 h-3 bg-black rounded-none animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-3 h-3 bg-black rounded-none animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-3 h-3 bg-black rounded-none animate-bounce" style={{ animationDelay: '300ms' }}></div>
-            </div>
-            <span className="text-black text-sm font-black uppercase">
+          <div className="flex items-center space-x-3 p-4 rounded-none bg-hacker-amber neo-border-thin neo-shadow animate-pulse border-2 border-hacker-terminal">
+            <span className="text-hacker-bg text-sm font-black uppercase font-mono">
               🤔 Thinking...
             </span>
           </div>
@@ -459,13 +454,13 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
 
         {/* Show thinking indicator if there are more messages to display */}
         {isSessionActive && visibleMessages.length < messages.length && currentlyAnimatingIndex < 0 && !isWaitingForNextAgent && (
-          <div className="flex items-center space-x-2 p-4 rounded-none bg-gray-200 dark:bg-gray-700 neo-border-thin">
+          <div className="flex items-center space-x-2 p-4 rounded-none bg-gray-800 neo-border-thin border-2 border-hacker-terminal">
             <div className="flex space-x-1">
-              <div className="w-2 h-2 bg-gray-600 dark:bg-gray-400 rounded-none animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 bg-gray-600 dark:bg-gray-400 rounded-none animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 bg-gray-600 dark:bg-gray-400 rounded-none animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <div className="w-2 h-2 bg-hacker-terminal rounded-none animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-hacker-terminal rounded-none animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-hacker-terminal rounded-none animate-bounce" style={{ animationDelay: '300ms' }}></div>
             </div>
-            <span className="text-gray-600 dark:text-gray-400 text-sm font-bold">
+            <span className="text-hacker-terminal text-sm font-bold font-mono">
               Loading next message...
             </span>
           </div>
@@ -478,7 +473,7 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
       {showScrollButton && (
         <button
           onClick={handleScrollToBottom}
-          className="fixed bottom-6 right-6 bg-orange-400 hover:bg-orange-500 text-black rounded-none p-3 sm:p-4 neo-border neo-shadow-hover z-50 animate-bounce"
+          className="fixed bottom-6 right-6 bg-hacker-blue hover:bg-blue-500 text-hacker-terminal rounded-none p-3 sm:p-4 neo-border neo-shadow-hover z-50 animate-bounce border-2 border-hacker-terminal"
           aria-label="Scroll to bottom"
           title="Scroll to bottom (Auto-scroll paused)"
         >
@@ -501,7 +496,7 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
       )}
 
       {visibleMessages.length === 0 && (
-        <div className="text-gray-600 dark:text-gray-400 text-center py-8 font-bold">
+        <div className="text-hacker-terminal text-center py-8 font-bold font-mono">
           No messages in this conversation yet
         </div>
       )}
