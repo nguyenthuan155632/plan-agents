@@ -8,9 +8,16 @@ export const metadata: Metadata = {
   title: 'Dual AI Collaboration Framework',
   description: 'Watch two AI agents collaborate and brainstorm in real-time',
   icons: {
-    icon: '/icon.svg',
-    apple: '/icon.svg',
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon-180.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
+  manifest: '/manifest.json',
 }
 
 export const viewport: Viewport = {

@@ -6,7 +6,7 @@ export default function Header() {
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="flex items-center justify-between flex-wrap gap-3 sm:gap-6">
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <DualAIIcon className="w-14 h-14" />
+            <DualAIIcon className="w-20 h-20" />
             <div>
               <h1 className="text-xl sm:text-4xl font-black text-black uppercase tracking-tighter leading-tight font-mono">
                 Dual AI Collaboration

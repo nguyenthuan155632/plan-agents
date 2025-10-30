@@ -86,7 +86,7 @@ export default function Home() {
             ) : (
               <div className="bg-white rounded-none neo-border neo-shadow p-6 sm:p-12 text-center">
                 <div className="flex justify-center mb-4 sm:mb-6">
-                  <DualAIIcon className="w-16 h-16" />
+                  <DualAIIcon className="w-24 h-24" />
                 </div>
                 <h2 className="text-xl sm:text-3xl font-black text-black mb-3 sm:mb-4 uppercase tracking-tight font-mono">
                   Welcome to Dual AI Collaboration
