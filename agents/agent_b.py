@@ -46,6 +46,25 @@ class AgentB(BaseAgent):
         elif previous_message.role == Role.AGENT_A:
             return self._respond_to_agent_a(previous_message, context)
         else:
+            # Try to use RAG if available
+            rag_context = ""
+            if self.rag_chain:
+                rag_context = self.query_rag(previous_message.content)
+                
+            if rag_context:
+                return f"""I've looked at the codebase context:
+                
+{rag_context}
+
+This is interesting! Let's think about this creatively:
+
+**Innovation Opportunities:**
+1. **Extension**: How can we build upon this existing functionality?
+2. **Refactoring**: Is there a more elegant way to achieve this?
+3. **User Experience**: How does this impact the end user?
+
+Agent A, does this align with your technical understanding?"""
+
             return self._generate_default_response(previous_message)
     
     def _respond_to_human(self, message: Message) -> str:

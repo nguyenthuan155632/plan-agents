@@ -153,13 +153,29 @@ class LLMAgentBase(BaseAgent):
             language=self.detected_language or 'english'
         )
         
+        # Query RAG for codebase context if available
+        rag_context = ""
+        if self.rag_chain:
+            try:
+                rag_result = self.query_rag(previous_message.content)
+                if rag_result:
+                    rag_context = f"""
+📚 CODEBASE CONTEXT (from RAG search):
+{rag_result}
+
+Use this codebase context to inform your planning suggestions. Reference specific files/functions when relevant.
+"""
+                    logger.info(f"{self.role.value}: Retrieved RAG context ({len(rag_result)} chars)")
+            except Exception as e:
+                logger.warning(f"{self.role.value}: RAG query failed: {e}")
+
         # Build the user prompt
         user_prompt = f"""Previous conversation:
 {context}
 
 Latest message from {previous_message.role.value}:
 {previous_message.content}
-
+{rag_context}
 Exchange count: {exchange_count} (Total messages: {len(all_messages)})
 {addressing_context}
 

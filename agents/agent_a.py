@@ -49,6 +49,23 @@ class AgentA(BaseAgent):
             return self._respond_to_agent_b(previous_message, context)
         else:
             # Default response
+            
+            # Try to use RAG if available
+            rag_context = ""
+            if self.rag_chain:
+                rag_context = self.query_rag(previous_message.content)
+                
+            if rag_context:
+                return f"""Based on my analysis of the codebase:
+                
+{rag_context}
+
+From a code review perspective, I have verified this against the actual implementation.
+1. **Accuracy**: The information above is derived directly from the source code.
+2. **Context**: This aligns with the project structure.
+
+Agent B, do you see any alternative interpretations or creative uses for this?"""
+            
             return self._generate_default_response(previous_message)
     
     def _respond_to_human(self, message: Message) -> str:

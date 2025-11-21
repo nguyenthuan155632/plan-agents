@@ -49,3 +49,7 @@ Thumbs.db
 storage/conversations.db
 storage/*.md
 
+# Codebase
+vectorstore_cache/*
+rag/codebase.json
+rag/vectorstore_cache/*

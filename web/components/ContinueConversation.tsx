@@ -61,7 +61,7 @@ export default function ContinueConversation({
     <div className="bg-yellow-300 rounded-none neo-border neo-shadow-lg p-4 sm:p-6">
       <h3 className="text-lg sm:text-xl font-black text-black mb-3 sm:mb-4 flex items-center uppercase tracking-wide font-mono">
         <span className="mr-2 sm:mr-3 text-xl sm:text-2xl">✋</span>
-        <span className="text-sm sm:text-xl font-mono">Agents are waiting for your input</span>
+        <span className="text-sm sm:text-xl font-mono">Agents need your guidance</span>
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -69,7 +69,7 @@ export default function ContinueConversation({
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Enter your message to continue the conversation..."
+            placeholder="Provide more context, clarify requirements, or guide the planning direction..."
             rows={3}
             className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white neo-border-thin text-black placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none text-sm sm:text-base font-mono"
             disabled={isSending}

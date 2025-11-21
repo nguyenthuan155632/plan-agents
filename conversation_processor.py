@@ -76,20 +76,63 @@ class ConversationProcessor:
 
         # Agent A uses OpenAI, Agent B uses Gemini
         self.agent_a = GLMAgent(Role.AGENT_A, self.db, glm_config)
-        self.agent_b = GeminiAgent(Role.AGENT_B, self.db, gemini_config)
-        
+        # self.agent_b = GeminiAgent(Role.AGENT_B, self.db, gemini_config)
+        self.agent_b = GLMAgent(Role.AGENT_B, self.db, glm_config)
+
         logger.info(f"🤖 Agent A: {glm_model} from z.ai")
         logger.info(f"🤖 Agent B: {gemini_model} from Google")
+
+        # Load RAG chain if codebase exists
+        self._load_rag_chain()
         
         self.coordinator = Coordinator(self.db)
         self.coordinator.register_agent(Role.AGENT_A, self.agent_a.respond_to)
         self.coordinator.register_agent(Role.AGENT_B, self.agent_b.respond_to)
-    
+
+    def _load_rag_chain(self):
+        """Load RAG chain from codebase if it exists."""
+        codebase_path = Path(__file__).parent / 'rag' / 'codebase.json'
+        if codebase_path.exists():
+            try:
+                from rag.rag_system import create_rag_system
+
+                logger.info(f"📚 Loading RAG chain from {codebase_path}")
+                result = create_rag_system(str(codebase_path))
+
+                rag_chain = result[0] if isinstance(result, tuple) else result
+
+                if rag_chain:
+                    self.agent_a.rag_chain = rag_chain
+                    self.agent_b.rag_chain = rag_chain
+                    self._codebase_mtime = codebase_path.stat().st_mtime
+                    logger.info("✅ RAG chain loaded and assigned to both agents")
+                else:
+                    logger.warning("⚠️ RAG chain creation returned None")
+            except Exception as e:
+                logger.error(f"❌ Failed to load RAG chain: {e}")
+        else:
+            logger.info("📭 No codebase.json found, RAG disabled")
+            self._codebase_mtime = None
+
+    def _check_and_reload_rag(self):
+        """Check if codebase was updated and reload RAG if needed."""
+        codebase_path = Path(__file__).parent / 'rag' / 'codebase.json'
+        if codebase_path.exists():
+            current_mtime = codebase_path.stat().st_mtime
+            if not hasattr(self, '_codebase_mtime') or self._codebase_mtime != current_mtime:
+                logger.info("🔄 Codebase changed, reloading RAG chain...")
+                self._load_rag_chain()
+        elif hasattr(self, '_codebase_mtime') and self._codebase_mtime is not None:
+            # Codebase was deleted
+            logger.info("📭 Codebase removed, disabling RAG")
+            self.agent_a.rag_chain = None
+            self.agent_b.rag_chain = None
+            self._codebase_mtime = None
+
     def process_signal_file(self, signal_path: Path) -> bool:
         """Process a signal file and start/continue conversation."""
         try:
             # Read and delete signal file
-            topic = signal_path.read_text(encoding='utf-8').strip()
             signal_path.unlink()
             
             # Extract session ID from filename
@@ -199,14 +242,17 @@ class ConversationProcessor:
         
         while True:
             try:
+                # Check if codebase was updated and reload RAG if needed
+                self._check_and_reload_rag()
+
                 # Check for signal files
                 signal_files = list(SIGNAL_DIR.glob('signal_*.txt')) + \
                               list(SIGNAL_DIR.glob('continue_*.txt'))
-                
+
                 for signal_file in signal_files:
                     logger.info(f"📨 Found signal: {signal_file.name}")
                     self.process_signal_file(signal_file)
-                
+
                 # Sleep before next check
                 time.sleep(1)
                 

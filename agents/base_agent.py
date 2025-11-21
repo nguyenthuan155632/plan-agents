@@ -21,7 +21,8 @@ class BaseAgent(ABC):
         self.role = role
         self.db = db
         self.config = config or {}
-        self.max_response_length = self.config.get("max_turn_length", 5000)  # Increased to 5000
+        self.max_response_length = self.config.get("max_turn_length", 5000)
+        self.rag_chain = None  # RAG chain for querying codebase
         
         logger.info(f"Initialized {self.role.value}")
     
@@ -117,4 +118,24 @@ class BaseAgent(ABC):
             context.append(f"{msg.role.value}: {msg.content}")
         
         return "\n\n".join(context)
+    def query_rag(self, query: str) -> str:
+        """
+        Query the RAG system for context.
+        
+        Args:
+            query: The question to ask the RAG system
+            
+        Returns:
+            The answer from the RAG system, or None if RAG is not available
+        """
+        if not self.rag_chain:
+            return None
+            
+        try:
+            logger.info(f"{self.role.value} querying RAG: {query}")
+            result = self.rag_chain.invoke({"query": query})
+            return result['result']
+        except Exception as e:
+            logger.error(f"RAG query failed: {e}")
+            return None
 

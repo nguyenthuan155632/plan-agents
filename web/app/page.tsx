@@ -89,10 +89,10 @@ export default function Home() {
                   <DualAIIcon className="w-24 h-24" />
                 </div>
                 <h2 className="text-xl sm:text-3xl font-black text-black mb-3 sm:mb-4 uppercase tracking-tight font-mono">
-                  Welcome to Dual AI Collaboration
+                  AI Planning Agents
                 </h2>
                 <p className="text-gray-600 font-bold text-sm sm:text-lg font-mono">
-                  Start a new conversation above
+                  Describe your task above - agents will debate to find the best implementation plan
                 </p>
               </div>
             )}

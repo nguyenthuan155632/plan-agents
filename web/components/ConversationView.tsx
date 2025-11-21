@@ -376,8 +376,8 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
     <div className="bg-white rounded-none neo-border neo-shadow p-3 sm:p-6 relative">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
         <h2 className="text-xl sm:text-2xl font-black text-black flex items-center uppercase tracking-tight font-mono">
-          <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">💬</span>
-          <span className="text-base sm:text-2xl font-mono">Conversation</span>
+          <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">🔄</span>
+          <span className="text-base sm:text-2xl font-mono">Planning Debate</span>
         </h2>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
@@ -447,7 +447,7 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
         {isWaitingForNextAgent && (
           <div className="flex items-center space-x-3 p-4 rounded-none bg-yellow-300 neo-border-thin neo-shadow animate-pulse">
             <span className="text-black text-sm font-black uppercase font-mono">
-              🤔 Thinking...
+              🤔 Analyzing codebase...
             </span>
           </div>
         )}

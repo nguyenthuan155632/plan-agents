@@ -65,8 +65,8 @@ export default function StartConversation({ onSessionCreated, hasActiveSession =
         className="w-full p-4 sm:p-6 flex items-center justify-between text-black hover:bg-gray-100 transition-colors"
       >
         <h2 className="text-xl sm:text-2xl font-black text-black flex items-center uppercase tracking-tight font-mono">
-          <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">✨</span>
-          <span className="text-base sm:text-2xl font-mono">Start New Conversation</span>
+          <span className="mr-2 sm:mr-3 text-2xl sm:text-3xl">🎯</span>
+          <span className="text-base sm:text-2xl font-mono">New Planning Task</span>
         </h2>
         <span className="text-xl sm:text-2xl text-black font-black">
           {isCollapsed ? '▼' : '▲'}
@@ -78,13 +78,13 @@ export default function StartConversation({ onSessionCreated, hasActiveSession =
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
           <div>
             <label htmlFor="topic" className="block text-xs sm:text-sm font-black text-black mb-2 sm:mb-3 uppercase tracking-wide font-mono">
-              What topic would you like the agents to discuss?
+              What do you want to build or change in the codebase?
             </label>
             <textarea
               id="topic"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g., Best practices for API design, React vs Vue, Microservices vs Monolith, etc."
+              placeholder="e.g., Add user authentication with JWT, Refactor the payment service to support multiple providers, Fix the race condition in order processing..."
               rows={4}
               className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white neo-border-thin text-black placeholder-gray-500 focus:outline-none focus:neo-shadow font-medium resize-none text-sm sm:text-base font-mono"
               disabled={isStarting}
@@ -113,7 +113,7 @@ export default function StartConversation({ onSessionCreated, hasActiveSession =
             ) : (
               <>
                 <span className="mr-2 text-xl sm:text-2xl">🚀</span>
-                <span className="font-mono">Start Discussion</span>
+                <span className="font-mono">Start Planning</span>
               </>
             )}
           </button>
