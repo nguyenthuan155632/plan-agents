@@ -270,88 +270,13 @@ def create_rag_system(file_path):
             # Save to cache
             save_vectorstore_cache(cache_key, vectorstore, num_chunks)
 
-        # Create retriever
-        retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+        # Create retriever (no LLM needed - agents will process raw context)
+        retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 4})
 
-        # Create LLM based on configuration
-        llm = None
-        llm_source = ""
+        print(f"✅ RAG retriever ready (no LLM summarization - agents process raw context)")
 
-        # Try GLM first if enabled
-        if USE_GLM and GLM_API_KEY:
-            print(f"🤖 Attempting to use GLM LLM: {GLM_MODEL}")
-            try:
-                llm = GLMLLM(model=GLM_MODEL, api_key=GLM_API_KEY, base_url=GLM_BASE_URL, temperature=GLM_TEMPERATURE, max_tokens=GLM_MAX_TOKENS)
-                llm_source = f"GLM ({GLM_MODEL})"
-                print(f"✅ GLM LLM initialized successfully")
-            except Exception as e:
-                print(f"⚠️ GLM not available: {e}")
-                print(f"💡 To use GLM:")
-                print(f"   1. Get API key: https://z.ai/manage-apikey/apikey-list")
-                print(f"   2. Set environment: export GLM_API_KEY='your-key'")
-        elif USE_GLM and not GLM_API_KEY:
-            print(f"⚠️ GLM enabled but no API key provided")
-            print(f"💡 Set GLM_API_KEY environment variable")
-
-        # Try Ollama if GLM failed
-        if llm is None and USE_OLLAMA:
-            print(f"🤖 Attempting to use Ollama LLM: {OLLAMA_MODEL}")
-            try:
-                # Test Ollama connection first
-                ollama.list()  # Test connection
-                llm = OllamaLLM(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL, temperature=0.7, num_predict=OLLAMA_NUM_PREDICT)
-                llm_source = f"Ollama ({OLLAMA_MODEL})"
-                print(f"✅ Ollama LLM connected successfully")
-            except Exception as e:
-                print(f"⚠️ Ollama not available: {e}")
-                print(f"💡 To use Ollama:")
-                print(f"   1. Install Ollama: https://ollama.ai/download")
-                print(f"   2. Pull model: ollama pull {OLLAMA_MODEL}")
-                print(f"   3. Start Ollama: ollama serve")
-
-        # Try OpenAI as fallback
-        if llm is None and os.getenv("OPENAI_API_KEY"):
-            print(f"🔄 Falling back to OpenAI LLM")
-            try:
-                llm = OpenAI(temperature=0.7)
-                llm_source = "OpenAI"
-                print(f"✅ OpenAI LLM initialized successfully")
-            except Exception as e:
-                print(f"⚠️ OpenAI not available: {e}")
-
-        # If no LLM is available, provide helpful error message
-        if llm is None:
-            print(f"\n❌ No LLM available!")
-            print(f"\n🔧 Quick Setup Options:")
-            print(f"   1. Use GLM (Z.AI):")
-            print(f"      • Get API key: https://z.ai/manage-apikey/apikey-list")
-            print(f"      • Set: export GLM_API_KEY='your-key'")
-            print(f"      • Set: export USE_GLM=true")
-            print(f"   \n   2. Use Ollama (Recommended - Free):")
-            print(f"      • Install: https://ollama.ai/download")
-            print(f"      • Pull model: ollama pull {OLLAMA_MODEL}")
-            print(f"      • Start: ollama serve")
-            print(f"   \n   3. Use the quick start script:")
-            print(f"      ./quick_start_ollama.sh")
-            print(f"   \n   4. Or use OpenAI:")
-            print(f"      export OPENAI_API_KEY='sk-your-key'")
-            raise Exception("No LLM available. Please configure GLM, Ollama, or OpenAI.")
-
-        # Confirm LLM is ready
-        if llm:
-            print(f"✅ LLM ready: {llm_source}")
-        else:
-            raise Exception("Failed to initialize any LLM")
-
-        # Create QA chain
-        qa_chain = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=retriever,
-            return_source_documents=True
-        )
-
-        return qa_chain, num_chunks
+        # Return retriever instead of qa_chain for faster, direct access to documents
+        return retriever, num_chunks
 
     except Exception as e:
         raise Exception(f"Error creating RAG system: {str(e)}")

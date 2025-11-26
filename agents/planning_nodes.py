@@ -71,12 +71,14 @@ class PlanningNodes:
 
         if self.rag_chain:
             try:
-                result = self.rag_chain.invoke({"query": combined_query})
-                answer = result.get('result', '')
-                if answer:
+                # Use retriever to get documents directly (no LLM call)
+                docs = self.rag_chain.get_relevant_documents(combined_query)
+                # Format documents into readable context
+                for i, doc in enumerate(docs, 1):
+                    answer = f"[Document {i}]\n{doc.page_content}\n"
                     context_results.append(answer)
                     # Extract file paths from RAG results
-                    for line in answer.split('\n'):
+                    for line in doc.page_content.split('\n'):
                         if '/' in line and ('.' in line.split('/')[-1]):
                             # Likely a file path
                             parts = line.split()

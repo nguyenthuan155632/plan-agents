@@ -200,9 +200,13 @@ class CodebaseIntelligence:
         rag_results = ""
         if self.rag_chain:
             try:
-                rag_results = self.rag_chain.invoke(task_description)
-                if isinstance(rag_results, dict) and 'result' in rag_results:
-                    rag_results = rag_results['result']
+                # Use retriever to get documents directly (no LLM call)
+                docs = self.rag_chain.get_relevant_documents(task_description)
+                # Format documents into readable context
+                context_parts = []
+                for doc in docs:
+                    context_parts.append(doc.page_content)
+                rag_results = "\n\n".join(context_parts) if context_parts else ""
             except Exception as e:
                 print(f"RAG query error: {e}")
 
@@ -243,10 +247,10 @@ class CodebaseIntelligence:
         results = []
         for query in queries:
             try:
-                result = self.rag_chain.invoke(query)
-                if isinstance(result, dict) and 'result' in result:
-                    result = result['result']
-                results.append(str(result))
+                # Use retriever to get documents directly (no LLM call)
+                docs = self.rag_chain.get_relevant_documents(query)
+                for doc in docs:
+                    results.append(doc.page_content)
             except:
                 pass
 

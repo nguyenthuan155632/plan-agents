@@ -121,20 +121,25 @@ class BaseAgent(ABC):
     def query_rag(self, query: str) -> str:
         """
         Query the RAG system for context.
-        
+
         Args:
             query: The question to ask the RAG system
-            
+
         Returns:
-            The answer from the RAG system, or None if RAG is not available
+            Relevant documents from the RAG system, or None if RAG is not available
         """
         if not self.rag_chain:
             return None
-            
+
         try:
             logger.info(f"{self.role.value} querying RAG: {query}")
-            result = self.rag_chain.invoke({"query": query})
-            return result['result']
+            # Use retriever to get relevant documents directly (no LLM call)
+            docs = self.rag_chain.get_relevant_documents(query)
+            # Format documents into readable context
+            context_parts = []
+            for i, doc in enumerate(docs, 1):
+                context_parts.append(f"[Document {i}]\n{doc.page_content}\n")
+            return "\n".join(context_parts) if context_parts else None
         except Exception as e:
             logger.error(f"RAG query failed: {e}")
             return None
