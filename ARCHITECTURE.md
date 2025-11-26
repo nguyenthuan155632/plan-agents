@@ -233,11 +233,15 @@ plan-agents/
 │   ├── planning_graph.py         # Turn-based planning workflow
 │   ├── planning_nodes.py         # Planning node functions
 │   └── shared/
-│       ├── llm_agent_base.py     # Shared LLM logic + RAG integration
+│       ├── llm_agent_base.py     # Shared LLM logic + RAG + Planning System
 │       ├── language_detector.py  # Detect Vietnamese/English
 │       ├── language_instructions.py # Language-specific prompts
 │       ├── hybrid_guidance.py    # Planning mode guidance
-│       └── prompts.py            # System prompts
+│       ├── prompts.py            # System prompts + Dynamic generation
+│       ├── task_analyzer.py      # 🆕 Task classification & analysis
+│       ├── codebase_intelligence.py # 🆕 Tech stack & pattern detection
+│       ├── prompt_generator.py   # 🆕 Context-aware prompt generation
+│       └── execution_plan_generator.py # 🆕 Actionable plan creation
 │
 ├── core/                         # Core Infrastructure
 │   ├── coordinator.py            # Turn management
@@ -256,6 +260,9 @@ plan-agents/
 │   └── conversations.db          # SQLite database
 │
 ├── conversation_processor.py     # Main backend process
+├── test_planning_standalone.py   # 🆕 Planning system tests
+├── PLANNING_SYSTEM_GUIDE.md      # 🆕 Planning system user guide
+├── IMPLEMENTATION_SUMMARY.md     # 🆕 Planning system technical docs
 ├── .env                          # Configuration
 └── requirements.txt              # Python dependencies
 ```
@@ -268,10 +275,14 @@ plan-agents/
 | **Coordinator** | Orchestrates turn-taking between agents (Debate mode) |
 | **TurnBasedPlanningWorkflow** | Graph-based workflow for structured planning (Planning mode) |
 | **PlanningNodes** | Node functions: analyze, propose, review, validate, finalize |
-| **LLMAgentBase** | Shared logic for all LLM agents, includes RAG query |
+| **LLMAgentBase** | Shared logic for all LLM agents, includes RAG query + Planning System |
 | **RAG System** | Retrieves relevant code context from uploaded codebase |
 | **FAISS VectorStore** | Stores embeddings for similarity search |
 | **Signal Files** | IPC mechanism between frontend and backend |
+| **🆕 TaskAnalyzer** | Classifies tasks (feature/refactor/debug), estimates complexity |
+| **🆕 CodebaseIntelligence** | Detects tech stack, patterns, analyzes file structure |
+| **🆕 PromptGenerator** | Generates context-aware, dynamic prompts for agents |
+| **🆕 ExecutionPlanGenerator** | Converts planning conversations into actionable steps |
 
 ## Conversation Modes
 
@@ -279,6 +290,180 @@ plan-agents/
 |------|-------------|------|
 | **Planning** | Structured workflow with checkpoints | Auto-continues through nodes, stops at validation checkpoint |
 | **Debate** | Free-form agent discussion | Agents take turns, human can interrupt anytime |
+
+## Flexible Planning System (🆕)
+
+The system now includes an intelligent planning layer that makes agents context-aware, similar to Cursor Plan or Claude Code.
+
+### Planning System Pipeline
+
+```mermaid
+flowchart TB
+    subgraph Input["📥 User Request"]
+        REQ[User Task/Question]
+    end
+
+    subgraph Analysis["1️⃣ Task Analysis"]
+        TA[TaskAnalyzer]
+        TYPE[Classify Type:<br/>feature/refactor/debug/etc.]
+        COMP[Estimate Complexity:<br/>simple/moderate/complex]
+        LANG[Detect Language:<br/>EN/VI]
+    end
+
+    subgraph Intelligence["2️⃣ Codebase Intelligence"]
+        CI[CodebaseIntelligence]
+        TECH[Detect Tech Stack:<br/>React, Python, etc.]
+        PATT[Find Patterns:<br/>MVC, RAG, etc.]
+        FILES[Related Files]
+    end
+
+    subgraph Prompts["3️⃣ Dynamic Prompts"]
+        PG[PromptGenerator]
+        CTX[Inject Codebase Context]
+        TASK[Task-Specific Guidance]
+        DYNAM[Context-Aware Prompt]
+    end
+
+    subgraph Response["4️⃣ Agent Response"]
+        AGENT[LLM Agent]
+        RESP[Intelligent Response]
+    end
+
+    subgraph Plan["5️⃣ Execution Plan"]
+        EPG[ExecutionPlanGenerator]
+        STEPS[Action Steps]
+        TESTS[Testing Strategy]
+        MARKDOWN[Markdown Plan]
+    end
+
+    REQ --> TA
+    TA --> TYPE & COMP & LANG
+    TYPE & COMP & LANG --> CI
+
+    CI --> TECH & PATT & FILES
+    TECH & PATT & FILES --> PG
+
+    PG --> CTX & TASK
+    CTX & TASK --> DYNAM
+    DYNAM --> AGENT
+    AGENT --> RESP
+
+    RESP --> EPG
+    EPG --> STEPS & TESTS
+    STEPS & TESTS --> MARKDOWN
+```
+
+### Planning System Components
+
+#### 1. **Task Analyzer** (`task_analyzer.py`)
+- **Purpose**: Understand what the user wants to do
+- **Capabilities**:
+  - Classifies task types: `feature`, `refactor`, `debug`, `architecture`, `optimization`, `testing`
+  - Extracts entities: files, functions, components, APIs, databases
+  - Detects language: English or Vietnamese
+  - Estimates complexity: `simple`, `moderate`, `complex`
+- **Example Output**:
+  ```python
+  TaskContext(
+      task_type=TaskType.FEATURE,
+      complexity=ComplexityLevel.MODERATE,
+      language="english",
+      keywords=["authentication", "nextauth", "oauth"],
+      entities={"files": ["auth/route.ts"], "functions": ["login"]}
+  )
+  ```
+
+#### 2. **Codebase Intelligence** (`codebase_intelligence.py`)
+- **Purpose**: Understand codebase structure and patterns
+- **Capabilities**:
+  - Tech stack detection: React, Next.js, Python, FastAPI, SQLite, etc.
+  - Pattern recognition: MVC, microservices, component-based, RAG
+  - File analysis: Groups files by type and purpose
+  - Dependency tracking: Identifies libraries and usage
+- **Example Output**:
+  ```python
+  CodebaseStructure(
+      tech_stack=TechStack(
+          languages=["typescript", "python"],
+          frameworks=["nextjs", "react", "fastapi"],
+          patterns=["component-based", "rag"]
+      ),
+      related_files=["web/app/page.tsx", "agents/base_agent.py"]
+  )
+  ```
+
+#### 3. **Dynamic Prompt Generator** (`prompt_generator.py`)
+- **Purpose**: Generate intelligent, context-aware prompts
+- **Capabilities**:
+  - Task-specific guidance: Different for features vs refactors vs debugging
+  - Codebase integration: References actual files and tech stack
+  - Complexity-adjusted: Simple tasks get concise prompts, complex get detailed
+  - Agent-specific: Agent A proposes, Agent B critiques
+- **Example**:
+  - Static Prompt: "You are Agent A. Provide a solution."
+  - Dynamic Prompt: "You are Agent A. **Tech Stack**: Next.js, React. **Task**: Feature (moderate). **Files**: `web/app/page.tsx`. Based on existing component patterns, suggest..."
+
+#### 4. **Execution Plan Generator** (`execution_plan_generator.py`)
+- **Purpose**: Convert planning discussions into actionable steps
+- **Capabilities**:
+  - Decision extraction: Identifies key agreements from conversation
+  - Step generation: Creates ordered, dependency-aware action items
+  - File tracking: Lists all files that need changes
+  - Testing strategy: Suggests appropriate testing approach
+  - Complexity estimation: Estimates time/effort required
+- **Output Format**: Markdown with sections for Summary, Decisions, Steps, Files, Testing, Risks
+
+### How It Works
+
+1. **On First Human Message**:
+   - System analyzes task → `TaskContext`
+   - Initializes `CodebaseIntelligence` if RAG available
+
+2. **On Each Agent Response**:
+   - Query codebase intelligence for task-specific context
+   - Generate dynamic prompt based on task type + codebase
+   - Agent receives context-aware system prompt
+   - Response includes references to actual files/patterns
+
+3. **After Planning Discussion**:
+   - Extract decisions from conversation
+   - Generate execution plan with file-level steps
+   - Export as markdown for implementation
+
+### Configuration
+
+```python
+# Enable (default)
+agent = LLMAgentBase(
+    role=Role.AGENT_A,
+    db=database,
+    config={'use_dynamic_prompts': True}
+)
+
+# Disable (use static prompts)
+agent = LLMAgentBase(
+    role=Role.AGENT_A,
+    db=database,
+    config={'use_dynamic_prompts': False}
+)
+```
+
+### Benefits
+
+- ✅ **Context-Aware**: Agents understand your codebase structure
+- ✅ **Task-Specific**: Different planning depth for different task types
+- ✅ **File-Level**: References actual files and patterns
+- ✅ **Actionable**: Generates executable plans with steps
+- ✅ **Multi-Language**: Supports English & Vietnamese
+- ✅ **Backward Compatible**: Can be toggled on/off
+
+### Documentation
+
+- **User Guide**: See `PLANNING_SYSTEM_GUIDE.md` for detailed usage
+- **Technical Docs**: See `IMPLEMENTATION_SUMMARY.md` for architecture
+- **Testing**: Run `python test_planning_standalone.py` to verify
+
+---
 
 ## Database Schema
 
