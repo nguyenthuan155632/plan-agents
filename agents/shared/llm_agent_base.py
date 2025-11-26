@@ -191,7 +191,7 @@ class LLMAgentBase(BaseAgent):
         relevant_context: Optional[RelevantContext] = None
         codebase_structure: Optional[CodebaseStructure] = None
 
-        if self.codebase_intelligence and self.task_context:
+        if self.codebase_intelligence and self.task_context and not skip_rag:
             try:
                 # Get task-specific relevant context
                 relevant_context = self.codebase_intelligence.get_relevant_context(
@@ -208,6 +208,8 @@ class LLMAgentBase(BaseAgent):
                 codebase_structure = self.codebase_intelligence.analyze_codebase()
             except Exception as e:
                 logger.warning(f"{self.role.value}: Codebase intelligence query failed: {e}")
+        elif skip_rag and self.codebase_intelligence:
+            logger.info(f"{self.role.value}: Skipping Codebase Intelligence query (already provided by Planning Mode)")
 
         # Query RAG for codebase context if available (fallback/additional context)
         rag_context = ""
