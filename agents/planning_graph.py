@@ -47,18 +47,55 @@ class TurnBasedPlanningWorkflow:
         Args:
             db: Database instance for state persistence
             rag_chain: RAG chain for codebase queries
-            agent_a: Agent A instance (has _call_llm method)
-            agent_b: Agent B instance (has _call_llm method)
+            agent_a: Agent A instance (has generate_response method)
+            agent_b: Agent B instance (has generate_response method)
         """
         self.db = db
         self.rag_chain = rag_chain
+        self.agent_a = agent_a
+        self.agent_b = agent_b
 
-        # Create LLM callers that wrap agent's _call_llm
+        # Create LLM callers that use generate_response for dynamic prompts
         def llm_caller_a(system_prompt: str, user_prompt: str) -> str:
-            return agent_a._call_llm(system_prompt, user_prompt)
+            # Create a fake message to trigger generate_response
+            from core.message import Message, Signal
+            from datetime import datetime
+
+            # Extract session_id from context if available, otherwise use dummy
+            session_id = getattr(llm_caller_a, '_current_session_id', 'planning-session')
+
+            fake_message = Message(
+                session_id=session_id,
+                role=Role.HUMAN,
+                content=user_prompt,
+                signal=Signal.CONTINUE,
+                timestamp=datetime.utcnow()
+            )
+
+            # Use generate_response which includes dynamic prompts
+            return agent_a.generate_response(fake_message)
 
         def llm_caller_b(system_prompt: str, user_prompt: str) -> str:
-            return agent_b._call_llm(system_prompt, user_prompt)
+            # Create a fake message to trigger generate_response
+            from core.message import Message, Signal
+            from datetime import datetime
+
+            session_id = getattr(llm_caller_b, '_current_session_id', 'planning-session')
+
+            fake_message = Message(
+                session_id=session_id,
+                role=Role.HUMAN,
+                content=user_prompt,
+                signal=Signal.CONTINUE,
+                timestamp=datetime.utcnow()
+            )
+
+            # Use generate_response which includes dynamic prompts
+            return agent_b.generate_response(fake_message)
+
+        # Store references for session_id injection
+        self.llm_caller_a = llm_caller_a
+        self.llm_caller_b = llm_caller_b
 
         # Initialize nodes
         self.nodes = PlanningNodes(rag_chain, llm_caller_a, llm_caller_b)
@@ -138,6 +175,10 @@ class TurnBasedPlanningWorkflow:
             return state, None
 
         try:
+            # Inject session_id into LLM callers for dynamic prompts
+            self.llm_caller_a._current_session_id = session_id
+            self.llm_caller_b._current_session_id = session_id
+
             # Execute node
             logger.info(f"[Planning] >>> Executing node function: {current_node}")
             updated_state = node_func(state)
