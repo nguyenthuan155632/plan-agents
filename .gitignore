@@ -48,6 +48,7 @@ Thumbs.db
 # Storage
 storage/conversations.db
 storage/*.md
+storage/*.txt
 
 # Codebase
 vectorstore_cache/*

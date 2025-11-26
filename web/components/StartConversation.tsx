@@ -7,8 +7,11 @@ interface StartConversationProps {
   hasActiveSession?: boolean
 }
 
+type ConversationMode = 'planning' | 'debate'
+
 export default function StartConversation({ onSessionCreated, hasActiveSession = false }: StartConversationProps) {
   const [topic, setTopic] = useState('')
+  const [mode, setMode] = useState<ConversationMode>('planning')
   const [isStarting, setIsStarting] = useState(false)
   const [error, setError] = useState('')
   const [isCollapsed, setIsCollapsed] = useState(hasActiveSession)
@@ -37,7 +40,7 @@ export default function StartConversation({ onSessionCreated, hasActiveSession =
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ topic: topic.trim() }),
+        body: JSON.stringify({ topic: topic.trim(), mode }),
       })
 
       const data = await response.json()
@@ -80,6 +83,37 @@ export default function StartConversation({ onSessionCreated, hasActiveSession =
             <label htmlFor="topic" className="block text-xs sm:text-sm font-black text-black mb-2 sm:mb-3 uppercase tracking-wide font-mono">
               What do you want to build or change in the codebase?
             </label>
+
+            {/* Mode Selection */}
+            <div className="flex gap-4 mb-3">
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="mode"
+                  value="planning"
+                  checked={mode === 'planning'}
+                  onChange={() => setMode('planning')}
+                  className="mr-2 w-4 h-4 accent-green-500"
+                  disabled={isStarting}
+                />
+                <span className="text-sm font-bold font-mono">📋 Planning</span>
+                <span className="text-xs text-gray-600 ml-1 font-mono">(collaborate)</span>
+              </label>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="mode"
+                  value="debate"
+                  checked={mode === 'debate'}
+                  onChange={() => setMode('debate')}
+                  className="mr-2 w-4 h-4 accent-orange-500"
+                  disabled={isStarting}
+                />
+                <span className="text-sm font-bold font-mono">🔥 Debate</span>
+                <span className="text-xs text-gray-600 ml-1 font-mono">(converge)</span>
+              </label>
+            </div>
+
             <textarea
               id="topic"
               value={topic}

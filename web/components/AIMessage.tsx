@@ -1,159 +1,128 @@
 'use client'
 
+import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import rehypeHighlight from 'rehype-highlight'
-import 'highlight.js/styles/github-dark.css'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 interface AIMessageProps {
   content: string
   role: 'AgentA' | 'AgentB' | 'Human'
 }
 
-export default function AIMessage({ content, role }: AIMessageProps) {
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
-    <div className="prose prose-sm max-w-none dark:prose-invert">
+    <button
+      onClick={handleCopy}
+      className="text-xs text-gray-400 hover:text-white transition-colors"
+    >
+      {copied ? 'Copied!' : 'Copy'}
+    </button>
+  )
+}
+
+export default function AIMessage({ content }: AIMessageProps) {
+  return (
+    <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-gray-100">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
         components={{
-          // Headings
-          h1: ({ children }) => (
-            <h1 className="text-2xl font-black text-black dark:text-white uppercase tracking-tight mt-6 mb-4 border-b-4 border-black dark:border-white pb-2">
-              {children}
-            </h1>
-          ),
-          h2: ({ children }) => (
-            <h2 className="text-xl font-black text-black dark:text-white uppercase tracking-tight mt-5 mb-3 border-b-2 border-black dark:border-white pb-1">
-              {children}
-            </h2>
-          ),
-          h3: ({ children }) => (
-            <h3 className="text-lg font-bold text-black dark:text-white uppercase tracking-wide mt-4 mb-2">
-              {children}
-            </h3>
-          ),
-
-          // Code blocks
-          code: ({ inline, className, children, ...props }: any) => {
+          code({ inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || '')
             const language = match ? match[1] : ''
+            const codeString = String(children).replace(/\n$/, '')
 
-            if (inline) {
+            if (!inline && (match || codeString.includes('\n'))) {
               return (
-                <code
-                  className="bg-gray-200 dark:bg-gray-800 text-pink-600 dark:text-pink-400 px-2 py-1 rounded-none border-2 border-black dark:border-white font-mono text-sm font-bold"
-                  {...props}
-                >
-                  {children}
-                </code>
+                <div className="not-prose my-4 rounded-lg overflow-hidden">
+                  <div className="flex items-center justify-between bg-gray-800 px-4 py-2 text-xs">
+                    <span className="text-gray-400 font-mono">{language || 'code'}</span>
+                    <CopyButton text={codeString} />
+                  </div>
+                  <SyntaxHighlighter
+                    style={oneDark}
+                    language={language || 'text'}
+                    PreTag="div"
+                    customStyle={{
+                      margin: 0,
+                      borderRadius: 0,
+                      borderTopLeftRadius: 0,
+                      borderTopRightRadius: 0,
+                    }}
+                    {...props}
+                  >
+                    {codeString}
+                  </SyntaxHighlighter>
+                </div>
               )
             }
 
             return (
-              <div className="my-4">
-                {language && (
-                  <div className="bg-gray-900 text-white px-4 py-2 font-mono text-xs font-bold uppercase tracking-wide border-2 border-black">
-                    {language}
-                  </div>
-                )}
-                <pre className="!mt-0 !p-4 bg-gray-100 dark:bg-gray-900 overflow-x-auto border-2 border-black dark:border-white !rounded-none">
-                  <code className="font-mono text-sm text-black dark:text-white" {...props}>
-                    {children}
-                  </code>
-                </pre>
+              <code className="bg-gray-200 dark:bg-gray-700 text-pink-600 dark:text-pink-400 px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
+                {children}
+              </code>
+            )
+          },
+          p({ children }) {
+            return <p className="my-3 leading-relaxed text-gray-700 dark:text-gray-300">{children}</p>
+          },
+          ul({ children }) {
+            return <ul className="my-3 space-y-1 list-disc pl-6">{children}</ul>
+          },
+          ol({ children }) {
+            return <ol className="my-3 space-y-1 list-decimal pl-6">{children}</ol>
+          },
+          li({ children }) {
+            return <li className="text-gray-700 dark:text-gray-300">{children}</li>
+          },
+          h1({ children }) {
+            return <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900 dark:text-gray-100">{children}</h1>
+          },
+          h2({ children }) {
+            return <h2 className="text-xl font-semibold mt-5 mb-3 text-gray-900 dark:text-gray-100">{children}</h2>
+          },
+          h3({ children }) {
+            return <h3 className="text-lg font-semibold mt-4 mb-2 text-gray-800 dark:text-gray-200">{children}</h3>
+          },
+          blockquote({ children }) {
+            return (
+              <blockquote className="my-4 pl-4 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 py-2 pr-4 italic text-gray-600 dark:text-gray-400">
+                {children}
+              </blockquote>
+            )
+          },
+          a({ href, children }) {
+            return (
+              <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                {children}
+              </a>
+            )
+          },
+          table({ children }) {
+            return (
+              <div className="my-4 overflow-x-auto">
+                <table className="min-w-full border border-gray-300 dark:border-gray-600">{children}</table>
               </div>
             )
           },
-
-          // Lists
-          ul: ({ children }) => (
-            <ul className="my-4 space-y-2 list-none pl-0">
-              {children}
-            </ul>
-          ),
-          ol: ({ children }) => (
-            <ol className="my-4 space-y-2 list-none pl-0 counter-reset-list">
-              {children}
-            </ol>
-          ),
-          li: ({ children, ordered }: any) => (
-            <li className="flex items-start">
-              <span className="inline-block w-8 h-8 bg-yellow-400 dark:bg-yellow-500 border-2 border-black dark:border-white flex items-center justify-center font-black text-black mr-3 flex-shrink-0">
-                {ordered ? '•' : '→'}
-              </span>
-              <span className="flex-1 pt-1 font-medium text-black dark:text-white">{children}</span>
-            </li>
-          ),
-
-          // Paragraphs
-          p: ({ children }) => (
-            <p className="my-3 text-black dark:text-white font-medium leading-relaxed">
-              {children}
-            </p>
-          ),
-
-          // Blockquotes
-          blockquote: ({ children }) => (
-            <blockquote className="my-4 pl-4 border-l-4 border-purple-500 dark:border-purple-400 bg-purple-100 dark:bg-purple-900/30 p-4 rounded-none neo-border italic">
-              {children}
-            </blockquote>
-          ),
-
-          // Tables
-          table: ({ children }) => (
-            <div className="my-4 overflow-x-auto">
-              <table className="w-full border-4 border-black dark:border-white rounded-none">
-                {children}
-              </table>
-            </div>
-          ),
-          thead: ({ children }) => (
-            <thead className="bg-yellow-400 dark:bg-yellow-500">
-              {children}
-            </thead>
-          ),
-          th: ({ children }) => (
-            <th className="px-4 py-3 text-left font-black text-black uppercase tracking-wide border-2 border-black dark:border-white">
-              {children}
-            </th>
-          ),
-          td: ({ children }) => (
-            <td className="px-4 py-3 border-2 border-black dark:border-white font-medium text-black dark:text-white">
-              {children}
-            </td>
-          ),
-
-          // Links
-          a: ({ href, children }) => (
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 dark:text-blue-400 font-bold underline decoration-2 decoration-blue-600 dark:decoration-blue-400 hover:bg-blue-400 hover:text-black transition-colors px-1"
-            >
-              {children} ↗
-            </a>
-          ),
-
-          // Horizontal rule
-          hr: () => (
-            <hr className="my-6 border-0 border-t-4 border-black dark:border-white" />
-          ),
-
-          // Strong/Bold
-          strong: ({ children }) => (
-            <strong className="font-black text-black dark:text-white bg-yellow-300 dark:bg-yellow-500 px-1">
-              {children}
-            </strong>
-          ),
-
-          // Emphasis/Italic
-          em: ({ children }) => (
-            <em className="italic text-red-700 font-semibold">
-              {children}
-            </em>
-          ),
+          th({ children }) {
+            return <th className="px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 font-semibold text-left">{children}</th>
+          },
+          td({ children }) {
+            return <td className="px-4 py-2 border border-gray-300 dark:border-gray-600">{children}</td>
+          },
+          strong({ children }) {
+            return <strong className="font-semibold text-gray-900 dark:text-gray-100">{children}</strong>
+          },
         }}
       >
         {content}
@@ -161,4 +130,3 @@ export default function AIMessage({ content, role }: AIMessageProps) {
     </div>
   )
 }
-

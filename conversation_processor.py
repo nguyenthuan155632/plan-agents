@@ -10,9 +10,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 from core.database import Database
 from core.coordinator import Coordinator
-from core.message import Role, Signal
+from core.message import Role, Signal, Message, ConversationMode
 from agents.glm_agent import GLMAgent
 from agents.gemini_agent import GeminiAgent
+from agents.planning_graph import TurnBasedPlanningWorkflow
+from agents.shared.language_detector import LanguageDetector
+from datetime import datetime
 
 # Load environment variables from .env file
 load_dotenv()
@@ -84,7 +87,16 @@ class ConversationProcessor:
 
         # Load RAG chain if codebase exists
         self._load_rag_chain()
-        
+
+        # Initialize LangGraph planning workflow
+        self.planning_workflow = TurnBasedPlanningWorkflow(
+            db=self.db,
+            rag_chain=self.agent_a.rag_chain,
+            agent_a=self.agent_a,
+            agent_b=self.agent_b
+        )
+        logger.info("📊 LangGraph planning workflow initialized")
+
         self.coordinator = Coordinator(self.db)
         self.coordinator.register_agent(Role.AGENT_A, self.agent_a.respond_to)
         self.coordinator.register_agent(Role.AGENT_B, self.agent_b.respond_to)
@@ -160,31 +172,30 @@ class ConversationProcessor:
             if not session:
                 logger.error(f"Session {session_id} not found")
                 return False
-            
+
             messages = self.db.get_messages(session_id)
             if not messages:
                 logger.error(f"No messages found for session {session_id}")
                 return False
-            
+
             initial_message = messages[0]
-            
-            # Process ONLY ONE turn (not auto_continue loop)
-            logger.info(f"🎬 Processing one turn from: {initial_message.content[:50]}...")
-            self.coordinator.auto_continue = False  # Don't auto-continue, process one turn only
-            
-            # Process just one turn
-            response = self.coordinator.process_turn(session.id, initial_message)
-            
-            if response:
-                logger.info(f"✅ Turn completed with signal: {response.signal.value}")
-                # Frontend will trigger next turn if needed (don't create signal here)
-            
-            return True
-            
+
+            # Route based on mode
+            if session.mode == ConversationMode.PLANNING:
+                return self._run_planning_turn(session_id, initial_message, is_start=True)
+            else:
+                # DEBATE mode uses turn-based conversation via coordinator
+                logger.info(f"📋 Debate mode: Processing one turn from: {initial_message.content[:50]}...")
+                self.coordinator.auto_continue = False
+                response = self.coordinator.process_turn(session.id, initial_message)
+                if response:
+                    logger.info(f"✅ Turn completed with signal: {response.signal.value}")
+                return True
+
         except Exception as e:
             logger.error(f"Error starting conversation: {e}")
             return False
-    
+
     def _continue_conversation(self, session_id: str) -> bool:
         """Continue an existing conversation - process ONLY ONE turn."""
         try:
@@ -193,46 +204,122 @@ class ConversationProcessor:
             if not session:
                 logger.error(f"Session {session_id} not found")
                 return False
-            
+
             # Get all messages
             messages = self.db.get_messages(session_id)
             if not messages:
                 logger.error(f"No messages found for session {session_id}")
                 return False
-            
+
             # Get the last message (could be from human or agent)
             last_message = messages[-1]
-            
-            # 🚨 CHECK: Is this a STOP request from human?
-            is_stop_request = (
-                last_message.role == Role.HUMAN and 
-                ('🛑 STOP' in last_message.content or 'stop' in last_message.content.lower())
-            )
-            
-            if is_stop_request:
-                logger.info("🛑 Human requested STOP. Agents will summarize and conclude.")
-            
-            # Process ONLY ONE turn (not auto_continue loop)
-            logger.info(f"🔄 Processing one turn from {last_message.role.value}...")
-            self.coordinator.auto_continue = False  # Don't auto-continue, process one turn only
-            
-            # Process just one turn
-            response = self.coordinator.process_turn(session.id, last_message)
-            
-            if response:
-                logger.info(f"✅ Turn completed with signal: {response.signal.value}")
-                
-                # 🚨 If this was a response to STOP request, mark session as completed
-                if is_stop_request and response.signal == Signal.HANDOVER:
-                    logger.info("✅ Agent provided summary. Marking session as completed.")
-                    self.db.update_session_status(session_id, 'completed')
-                
-                # Frontend will trigger next turn if needed (don't create signal here)
-            
-            return True
-            
+
+            # Route based on mode
+            if session.mode == ConversationMode.PLANNING:
+                # Check if last message is from human (interrupt)
+                human_message = last_message if last_message.role == Role.HUMAN else None
+                return self._run_planning_turn(session_id, last_message, is_start=False, human_message=human_message)
+            else:
+                # DEBATE mode - original logic
+                is_stop_request = (
+                    last_message.role == Role.HUMAN and
+                    ('🛑 STOP' in last_message.content or 'stop' in last_message.content.lower())
+                )
+
+                if is_stop_request:
+                    logger.info("🛑 Human requested STOP. Agents will summarize and conclude.")
+
+                logger.info(f"🔄 Processing one turn from {last_message.role.value}...")
+                self.coordinator.auto_continue = False
+
+                response = self.coordinator.process_turn(session.id, last_message)
+
+                if response:
+                    logger.info(f"✅ Turn completed with signal: {response.signal.value}")
+
+                    if is_stop_request and response.signal == Signal.HANDOVER:
+                        logger.info("✅ Agent provided summary. Marking session as completed.")
+                        self.db.update_session_status(session_id, 'completed')
+
+                return True
+
         except Exception as e:
             logger.error(f"Error continuing conversation: {e}")
+            return False
+
+    def _run_planning_turn(self, session_id: str, trigger_message: Message, is_start: bool = False, human_message: Message = None) -> bool:
+        """
+        Run LangGraph planning workflow until checkpoint or completion.
+
+        Auto-continues through nodes until hitting a HANDOVER signal (checkpoint).
+
+        Args:
+            session_id: Session ID
+            trigger_message: The message that triggered this turn
+            is_start: Whether this is the first turn
+            human_message: Human message if this is a human interrupt
+        """
+        try:
+            # Detect language from the trigger message
+            language = LanguageDetector.detect(trigger_message.content)
+
+            if is_start:
+                # Initialize planning state
+                logger.info(f"📊 LangGraph: Starting planning workflow for session {session_id}")
+                self.planning_workflow.initialize_state(
+                    session_id=session_id,
+                    request=trigger_message.content,
+                    language=language
+                )
+
+            # Execute nodes until we hit a checkpoint (HANDOVER) or complete
+            max_iterations = 10  # Safety limit
+            iteration = 0
+
+            while iteration < max_iterations:
+                iteration += 1
+
+                # Execute one turn
+                logger.info(f"📊 LangGraph: Executing turn {iteration} (human_interrupt={human_message is not None})")
+                state, response = self.planning_workflow.execute_one_turn(
+                    session_id=session_id,
+                    human_message=human_message
+                )
+
+                # Clear human_message after first iteration (only applies to first node)
+                human_message = None
+
+                if response:
+                    # Save response to database
+                    saved_response = self.db.add_message(response)
+                    logger.info(f"✅ [v2] LangGraph turn {iteration}: {response.role.value} - signal={response.signal.value}")
+                    logger.info(f"📊 Current node: {state.get('current_node', 'unknown')}")
+                    logger.info(f"📊 Response content length: {len(response.content)} chars")
+
+                    # If planning completed, DON'T mark session as completed - allow human to continue
+                    if state.get('current_node') == 'completed':
+                        logger.info("✅ Planning workflow completed - waiting for human input to continue")
+                        # Don't mark as completed - session stays active for continuous conversation
+                        # self.db.update_session_status(session_id, 'completed')
+                        break
+
+                    # If HANDOVER, stop and wait for human
+                    if response.signal == Signal.HANDOVER:
+                        logger.info(f"🛑 Checkpoint reached after {iteration} turns. Waiting for human.")
+                        break
+
+                    # If CONTINUE, proceed to next node
+                    if response.signal == Signal.CONTINUE:
+                        logger.info(f"➡️ Auto-continuing to next node...")
+                        continue
+                else:
+                    logger.warning("No response from workflow")
+                    break
+
+            return True
+
+        except Exception as e:
+            logger.error(f"Error in planning turn: {e}", exc_info=True)
             return False
     
     def run(self):

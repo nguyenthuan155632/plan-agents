@@ -17,12 +17,14 @@ flowchart TB
         CP[ConversationProcessor]
         DB[(SQLite Database)]
         COORD[Coordinator]
+        PW[PlanningWorkflow]
     end
 
     subgraph Agents["🤖 AI Agents"]
         AA[Agent A<br/>GLM-4.6]
         AB[Agent B<br/>GLM/Gemini]
         BASE[LLMAgentBase]
+        PN[PlanningNodes]
     end
 
     subgraph RAG["📚 RAG System (rag/)"]
@@ -41,10 +43,12 @@ flowchart TB
     CC -->|"continue_*.txt"| CP
 
     CP --> DB
-    CP --> COORD
-    CP -->|Load RAG| RS
+    CP -->|Debate Mode| COORD
+    CP -->|Planning Mode| PW
 
     COORD --> AA & AB
+    PW --> PN
+    PN --> AA & AB
     AA & AB --> BASE
     BASE -->|Query| RS
 
@@ -138,7 +142,7 @@ flowchart LR
     RET --> CTX
 ```
 
-## Agent Debate Flow
+## Agent Debate Flow (Debate Mode)
 
 ```mermaid
 stateDiagram-v2
@@ -166,6 +170,48 @@ stateDiagram-v2
     Summary --> [*]: Conversation ends
 ```
 
+## Planning Workflow (Planning Mode)
+
+```mermaid
+stateDiagram-v2
+    [*] --> UserInput: User submits planning request
+
+    UserInput --> AnalyzeCodebase: Initialize planning state
+
+    state "Node Execution" as Nodes {
+        AnalyzeCodebase --> ProposeChanges: CONTINUE (auto)
+        ProposeChanges --> ReviewAndRefine: CONTINUE (auto)
+        ReviewAndRefine --> ValidateProposal: CONTINUE (auto)
+        ValidateProposal --> WaitForHuman: HANDOVER (checkpoint)
+    }
+
+    WaitForHuman --> FinalizePlan: User approves
+    WaitForHuman --> ProposeChanges: User requests modification
+    WaitForHuman --> Summary: User requests STOP
+
+    FinalizePlan --> Completed: HANDOVER
+    Completed --> [*]: Plan ready
+
+    Summary --> [*]: Planning stopped
+```
+
+### Planning Node Sequence
+
+| Node | Agent | Description | Signal |
+|------|-------|-------------|--------|
+| `analyze_codebase` | Agent A | Query RAG, analyze relevant files | CONTINUE |
+| `propose_changes` | Agent A | Propose concrete changes with files/functions | CONTINUE |
+| `review_and_refine` | Agent B | Review proposal, add improvements | CONTINUE |
+| `validate_proposal` | System | Check proposal has file references | HANDOVER (checkpoint) |
+| `finalize_plan` | Agent A | Generate final plan document | HANDOVER |
+| `completed` | - | Planning finished | - |
+
+### Human Interrupt Handling
+
+- **STOP/dừng**: Generate summary and end planning
+- **Modify/sửa**: Go back to relevant node with new input
+- **Other input**: Incorporate into current step and continue
+
 ## File Structure
 
 ```
@@ -184,8 +230,13 @@ plan-agents/
 │   ├── base_agent.py             # Base class with RAG query
 │   ├── glm_agent.py              # GLM (z.ai) agent
 │   ├── gemini_agent.py           # Google Gemini agent
+│   ├── planning_graph.py         # Turn-based planning workflow
+│   ├── planning_nodes.py         # Planning node functions
 │   └── shared/
 │       ├── llm_agent_base.py     # Shared LLM logic + RAG integration
+│       ├── language_detector.py  # Detect Vietnamese/English
+│       ├── language_instructions.py # Language-specific prompts
+│       ├── hybrid_guidance.py    # Planning mode guidance
 │       └── prompts.py            # System prompts
 │
 ├── core/                         # Core Infrastructure
@@ -213,9 +264,26 @@ plan-agents/
 
 | Component | Purpose |
 |-----------|---------|
-| **ConversationProcessor** | Main loop monitoring signals, manages agents and RAG |
-| **Coordinator** | Orchestrates turn-taking between agents |
+| **ConversationProcessor** | Main loop monitoring signals, routes to Planning or Debate mode |
+| **Coordinator** | Orchestrates turn-taking between agents (Debate mode) |
+| **TurnBasedPlanningWorkflow** | Graph-based workflow for structured planning (Planning mode) |
+| **PlanningNodes** | Node functions: analyze, propose, review, validate, finalize |
 | **LLMAgentBase** | Shared logic for all LLM agents, includes RAG query |
 | **RAG System** | Retrieves relevant code context from uploaded codebase |
 | **FAISS VectorStore** | Stores embeddings for similarity search |
 | **Signal Files** | IPC mechanism between frontend and backend |
+
+## Conversation Modes
+
+| Mode | Description | Flow |
+|------|-------------|------|
+| **Planning** | Structured workflow with checkpoints | Auto-continues through nodes, stops at validation checkpoint |
+| **Debate** | Free-form agent discussion | Agents take turns, human can interrupt anytime |
+
+## Database Schema
+
+### Tables
+
+- **sessions**: Conversation sessions with mode (planning/debate)
+- **messages**: All messages from agents and humans
+- **planning_state**: Persisted state for planning workflow (current_node, analysis, proposal, review, etc.)

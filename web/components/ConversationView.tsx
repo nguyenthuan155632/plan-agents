@@ -144,7 +144,10 @@ export default function ConversationView({ sessionId, refreshKey, onHandoverDete
       // Check if last message has handover signal
       if (newMessages.length > 0) {
         const lastMessage = newMessages[newMessages.length - 1]
-        const isWaitingForInput = (lastMessage.signal === 'handover' && sessionIsActive) || userRequestedInput
+        console.log('🔍 Last message signal:', lastMessage.signal, 'sessionIsActive:', sessionIsActive, 'userRequestedInput:', userRequestedInput)
+        // Show input if: (1) handover signal regardless of session status, OR (2) user requested input
+        const isWaitingForInput = lastMessage.signal === 'handover' || userRequestedInput
+        console.log('📝 isWaitingForInput:', isWaitingForInput)
         if (onHandoverDetected) {
           onHandoverDetected(isWaitingForInput)
         }

@@ -35,7 +35,7 @@ function dbRun(db: sqlite3.Database, sql: string, params: any[]): Promise<{ last
 
 export async function POST(request: Request) {
   try {
-    const { topic } = await request.json()
+    const { topic, mode = 'planning' } = await request.json()
 
     if (!topic || topic.trim().length === 0) {
       return NextResponse.json(
@@ -44,16 +44,20 @@ export async function POST(request: Request) {
       )
     }
 
+    // Validate mode
+    const validModes = ['planning', 'debate']
+    const sessionMode = validModes.includes(mode) ? mode : 'planning'
+
     const db = await openDb()
 
     // Generate UUID for session ID (schema requires TEXT, not INTEGER)
     const sessionId = randomUUID()
 
-    // Create new session with UUID and topic
+    // Create new session with UUID, topic, and mode
     await dbRun(
       db,
-      'INSERT INTO sessions (id, topic, status, started_at) VALUES (?, ?, ?, ?)',
-      [sessionId, topic, 'active', new Date().toISOString()]
+      'INSERT INTO sessions (id, topic, status, started_at, mode) VALUES (?, ?, ?, ?, ?)',
+      [sessionId, topic, 'active', new Date().toISOString(), sessionMode]
     )
 
     // Add initial human message

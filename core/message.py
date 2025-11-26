@@ -22,6 +22,12 @@ class Signal(str, Enum):
     HANDOVER = "handover"  # Transfer control to human moderator
 
 
+class ConversationMode(str, Enum):
+    """Conversation mode for agent collaboration."""
+    PLANNING = "planning"  # Collaborative planning mode
+    DEBATE = "debate"      # Debate and converge mode
+
+
 class Message(BaseModel):
     """Message schema for agent communication."""
     
@@ -70,13 +76,14 @@ class Message(BaseModel):
 
 class Session(BaseModel):
     """Conversation session."""
-    
+
     id: str
     topic: Optional[str] = None
     started_at: datetime = Field(default_factory=datetime.utcnow)
     ended_at: Optional[datetime] = None
     status: str = "active"  # active, paused, completed
-    
+    mode: ConversationMode = ConversationMode.PLANNING  # planning or debate
+
     def to_dict(self) -> dict:
         """Convert session to dictionary."""
         return {
@@ -84,6 +91,7 @@ class Session(BaseModel):
             "topic": self.topic,
             "started_at": self.started_at.isoformat(),
             "ended_at": self.ended_at.isoformat() if self.ended_at else None,
-            "status": self.status
+            "status": self.status,
+            "mode": self.mode.value
         }
 

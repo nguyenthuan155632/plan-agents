@@ -11,10 +11,30 @@ class LanguageInstructions:
         """Get Vietnamese language instructions."""
         return """
 
-IMPORTANT LANGUAGE RULES:
-- Respond ENTIRELY in Vietnamese
-- Use PURE Vietnamese - NO English words mixed in (except technical terms that have no Vietnamese equivalent)
-- Talk naturally like a Vietnamese developer"""
+⚠️⚠️⚠️ QUY TẮC NGÔN NGỮ QUAN TRỌNG ⚠️⚠️⚠️
+
+BẮT BUỘC trả lời HOÀN TOÀN bằng tiếng Việt!
+
+✅ CHỈ được dùng tiếng Anh cho:
+- Tên file, tên hàm, tên class, tên biến (ví dụ: getUserById, OrderService, config.py)
+- Từ khóa code (if, for, return, async, await...)
+- Thuật ngữ KHÔNG CÓ từ Việt: API, database, schema, cache, token, hash
+
+❌ CẤM dùng tiếng Anh cho từ thông thường:
+- "implement" → dùng "triển khai"
+- "approach" → dùng "cách làm" hoặc "hướng"
+- "consideration" → dùng "điểm cần lưu ý"
+- "trade-off" → dùng "đánh đổi"
+- "safety" → dùng "an toàn"
+- "performance" → dùng "hiệu năng"
+- "scaling" → dùng "mở rộng"
+- "backoff" → dùng "chờ"
+- "detect" → dùng "phát hiện"
+- "degradation" → dùng "suy giảm"
+- "gradual" → dùng "từ từ"
+- "automatic" → dùng "tự động"
+
+Viết tự nhiên như developer Việt Nam nói chuyện."""
     
     @staticmethod
     def get_english_instructions() -> str:
