@@ -201,7 +201,12 @@ class CodebaseIntelligence:
         if self.rag_chain:
             try:
                 # Use retriever to get documents directly (no LLM call)
-                docs = self.rag_chain.get_relevant_documents(task_description)
+                # Try invoke() first (LangChain new API), fallback to get_relevant_documents() (old API)
+                try:
+                    docs = self.rag_chain.invoke(task_description)
+                except AttributeError:
+                    docs = self.rag_chain.get_relevant_documents(task_description)
+
                 # Format documents into readable context
                 context_parts = []
                 for doc in docs:
@@ -248,7 +253,12 @@ class CodebaseIntelligence:
         for query in queries:
             try:
                 # Use retriever to get documents directly (no LLM call)
-                docs = self.rag_chain.get_relevant_documents(query)
+                # Try invoke() first (LangChain new API), fallback to get_relevant_documents() (old API)
+                try:
+                    docs = self.rag_chain.invoke(query)
+                except AttributeError:
+                    docs = self.rag_chain.get_relevant_documents(query)
+
                 for doc in docs:
                     results.append(doc.page_content)
             except:

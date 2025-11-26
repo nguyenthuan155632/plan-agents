@@ -134,7 +134,12 @@ class BaseAgent(ABC):
         try:
             logger.info(f"{self.role.value} querying RAG: {query}")
             # Use retriever to get relevant documents directly (no LLM call)
-            docs = self.rag_chain.get_relevant_documents(query)
+            # Try invoke() first (LangChain new API), fallback to get_relevant_documents() (old API)
+            try:
+                docs = self.rag_chain.invoke(query)
+            except AttributeError:
+                docs = self.rag_chain.get_relevant_documents(query)
+
             # Format documents into readable context
             context_parts = []
             for i, doc in enumerate(docs, 1):

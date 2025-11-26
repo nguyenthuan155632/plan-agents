@@ -72,7 +72,12 @@ class PlanningNodes:
         if self.rag_chain:
             try:
                 # Use retriever to get documents directly (no LLM call)
-                docs = self.rag_chain.get_relevant_documents(combined_query)
+                # Try invoke() first (LangChain new API), fallback to get_relevant_documents() (old API)
+                try:
+                    docs = self.rag_chain.invoke(combined_query)
+                except AttributeError:
+                    docs = self.rag_chain.get_relevant_documents(combined_query)
+
                 # Format documents into readable context
                 for i, doc in enumerate(docs, 1):
                     answer = f"[Document {i}]\n{doc.page_content}\n"
