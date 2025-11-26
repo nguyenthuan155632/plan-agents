@@ -10,10 +10,10 @@ import argparse
 from pathlib import Path
 from typing import List, Dict
 
-# Add the current directory to sys.path to allow imports from rag module
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Add the project root directory to sys.path to allow imports from rag package
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from rag_system import create_rag_system
+from rag.rag_system import create_rag_system
 
 # Configuration
 PROJECT_ROOT = Path(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
