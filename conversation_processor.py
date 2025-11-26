@@ -61,7 +61,8 @@ class ConversationProcessor:
             "z_ai_api_key": z_ai_api_key,
             "z_ai_base_url": z_ai_base_url,
             "model": glm_model,
-            "max_turn_length": max_turn_length
+            "max_turn_length": max_turn_length,
+            "use_dynamic_prompts": True  # 🆕 Enable flexible planning system
         }
 
         # openai_config = {
@@ -74,7 +75,8 @@ class ConversationProcessor:
         gemini_config = {
             "gemini_api_key": gemini_api_key,
             "model": gemini_model,
-            "max_turn_length": max_turn_length
+            "max_turn_length": max_turn_length,
+            "use_dynamic_prompts": True  # 🆕 Enable flexible planning system
         }
 
         # Agent A uses OpenAI, Agent B uses Gemini
