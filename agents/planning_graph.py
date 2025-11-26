@@ -72,8 +72,8 @@ class TurnBasedPlanningWorkflow:
                 timestamp=datetime.utcnow()
             )
 
-            # Use generate_response which includes dynamic prompts
-            return agent_a.generate_response(fake_message)
+            # Use generate_response with skip_rag=True (planning_nodes already queried RAG)
+            return agent_a.generate_response(fake_message, skip_rag=True)
 
         def llm_caller_b(system_prompt: str, user_prompt: str) -> str:
             # Create a fake message to trigger generate_response
@@ -90,8 +90,8 @@ class TurnBasedPlanningWorkflow:
                 timestamp=datetime.utcnow()
             )
 
-            # Use generate_response which includes dynamic prompts
-            return agent_b.generate_response(fake_message)
+            # Use generate_response with skip_rag=True (planning_nodes already queried RAG)
+            return agent_b.generate_response(fake_message, skip_rag=True)
 
         # Store references for session_id injection
         self.llm_caller_a = llm_caller_a

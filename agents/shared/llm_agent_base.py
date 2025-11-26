@@ -63,7 +63,7 @@ class LLMAgentBase(BaseAgent):
         """
         pass
     
-    def generate_response(self, previous_message: Message) -> str:
+    def generate_response(self, previous_message: Message, skip_rag: bool = False) -> str:
         """
         Generate response using the LLM model with dynamic planning prompts.
 
@@ -78,6 +78,7 @@ class LLMAgentBase(BaseAgent):
 
         Args:
             previous_message: The message to respond to
+            skip_rag: If True, skip RAG query (useful when RAG context already provided in Planning Mode)
 
         Returns:
             Generated response text
@@ -210,7 +211,7 @@ class LLMAgentBase(BaseAgent):
 
         # Query RAG for codebase context if available (fallback/additional context)
         rag_context = ""
-        if self.rag_chain:
+        if self.rag_chain and not skip_rag:
             try:
                 rag_result = self.query_rag(previous_message.content)
                 if rag_result:
@@ -231,6 +232,8 @@ Use this codebase context to inform your planning suggestions. Reference specifi
                     logger.info(f"{self.role.value}: Retrieved RAG context ({len(rag_result)} chars)")
             except Exception as e:
                 logger.warning(f"{self.role.value}: RAG query failed: {e}")
+        elif skip_rag:
+            logger.info(f"{self.role.value}: Skipping RAG query (already provided by Planning Mode)")
 
         # Build the user prompt
         user_prompt = f"""Previous conversation:
