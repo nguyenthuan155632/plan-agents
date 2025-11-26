@@ -14,6 +14,11 @@ from agents.shared.convergence_guidance import ConvergenceGuidanceService
 from agents.shared.conversation_analyzer import ConversationAnalyzer
 from core.message import Message, Role, Signal
 
+# Import new planning system components
+from agents.shared.task_analyzer import TaskAnalyzer, TaskContext
+from agents.shared.codebase_intelligence import CodebaseIntelligence, CodebaseStructure, RelevantContext
+from agents.shared.prompt_generator import PromptGenerator
+
 
 logger = logging.getLogger(__name__)
 
@@ -21,20 +26,25 @@ logger = logging.getLogger(__name__)
 class LLMAgentBase(BaseAgent):
     """
     Base class for LLM-powered agents with shared response generation logic.
-    
+
     Subclasses only need to implement:
     - __init__: Initialize the specific LLM client
     - _call_llm: Make the actual API call to the LLM
     """
-    
+
     def __init__(self, role: Role, db, config: dict = None):
         super().__init__(role, db, config)
-        
-        # Get system prompt based on role
+
+        # Get system prompt based on role (will be dynamically generated)
         self.system_prompt = get_system_prompt(role)
-        
+
         # Store detected language for the session
         self.detected_language: Optional[str] = None
+
+        # Initialize planning system components
+        self.codebase_intelligence: Optional[CodebaseIntelligence] = None
+        self.task_context: Optional[TaskContext] = None
+        self.use_dynamic_prompts: bool = config.get('use_dynamic_prompts', True) if config else True
         
     @abstractmethod
     def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
@@ -55,31 +65,33 @@ class LLMAgentBase(BaseAgent):
     
     def generate_response(self, previous_message: Message) -> str:
         """
-        Generate response using the LLM model.
-        
+        Generate response using the LLM model with dynamic planning prompts.
+
         This method contains all shared logic for:
+        - Task analysis and classification
+        - Codebase intelligence gathering
+        - Dynamic prompt generation
         - Language detection
         - Context building
         - Human intervention detection
         - Convergence guidance
-        - Prompt construction
-        
+
         Args:
             previous_message: The message to respond to
-            
+
         Returns:
             Generated response text
         """
         # Get the full conversation history
         all_messages = self.db.get_messages(previous_message.session_id)
-        
+
         # Check if human is requesting STOP/summary
         human_wants_stop = (
-            previous_message.role == Role.HUMAN and 
-            any(keyword in previous_message.content.lower() 
+            previous_message.role == Role.HUMAN and
+            any(keyword in previous_message.content.lower()
                 for keyword in ['stop', 'dừng', 'summarize', 'tóm tắt', '🛑'])
         )
-        
+
         # Determine how much context to load
         if human_wants_stop:
             # Get FULL conversation context for comprehensive summary
@@ -97,13 +109,34 @@ class LLMAgentBase(BaseAgent):
                 previous_message.session_id,
                 max_messages=10
             )
-        
+
         # Detect language from the first human message (the topic)
         if self.detected_language is None:
             topic = ConversationAnalyzer.extract_topic_from_messages(all_messages)
             if topic:
                 self.detected_language = LanguageDetector.detect(topic)
                 logger.info(f"{self.role.value}: Detected language = {self.detected_language}")
+
+        # === NEW: Dynamic Planning System ===
+        # Analyze task context on first human message
+        if self.task_context is None and previous_message.role == Role.HUMAN:
+            try:
+                self.task_context = TaskAnalyzer.analyze(previous_message.content)
+                logger.info(
+                    f"{self.role.value}: Task analyzed - "
+                    f"Type: {self.task_context.task_type.value}, "
+                    f"Complexity: {self.task_context.complexity.value}"
+                )
+            except Exception as e:
+                logger.warning(f"{self.role.value}: Task analysis failed: {e}")
+
+        # Initialize codebase intelligence if RAG is available
+        if self.codebase_intelligence is None and self.rag_chain:
+            try:
+                self.codebase_intelligence = CodebaseIntelligence(self.rag_chain)
+                logger.info(f"{self.role.value}: Codebase intelligence initialized")
+            except Exception as e:
+                logger.warning(f"{self.role.value}: Codebase intelligence init failed: {e}")
         
         # Count agent exchanges
         exchange_count = ConversationAnalyzer.count_agent_exchanges(all_messages)
@@ -153,13 +186,43 @@ class LLMAgentBase(BaseAgent):
             language=self.detected_language or 'english'
         )
         
-        # Query RAG for codebase context if available
+        # === NEW: Get relevant context using Codebase Intelligence ===
+        relevant_context: Optional[RelevantContext] = None
+        codebase_structure: Optional[CodebaseStructure] = None
+
+        if self.codebase_intelligence and self.task_context:
+            try:
+                # Get task-specific relevant context
+                relevant_context = self.codebase_intelligence.get_relevant_context(
+                    previous_message.content,
+                    self.task_context.task_type.value
+                )
+                logger.info(
+                    f"{self.role.value}: Retrieved relevant context - "
+                    f"{len(relevant_context.related_files)} files, "
+                    f"{len(relevant_context.similar_patterns)} patterns"
+                )
+
+                # Analyze overall codebase structure (cached)
+                codebase_structure = self.codebase_intelligence.analyze_codebase()
+            except Exception as e:
+                logger.warning(f"{self.role.value}: Codebase intelligence query failed: {e}")
+
+        # Query RAG for codebase context if available (fallback/additional context)
         rag_context = ""
         if self.rag_chain:
             try:
                 rag_result = self.query_rag(previous_message.content)
                 if rag_result:
-                    rag_context = f"""
+                    # Use PromptGenerator to build context addon
+                    if self.use_dynamic_prompts and self.task_context and relevant_context:
+                        rag_context = PromptGenerator.build_context_prompt_addon(
+                            self.task_context,
+                            relevant_context
+                        )
+                    else:
+                        # Fallback to old format
+                        rag_context = f"""
 📚 CODEBASE CONTEXT (from RAG search):
 {rag_result}
 
@@ -182,14 +245,35 @@ Exchange count: {exchange_count} (Total messages: {len(all_messages)})
 Respond naturally in your characteristic style as {self.role.value}.{language_instruction}{convergence_guidance}"""
         
         try:
+            # === NEW: Generate dynamic system prompt if enabled ===
+            system_prompt_to_use = self.system_prompt  # Default
+
+            if self.use_dynamic_prompts and self.task_context:
+                try:
+                    # Generate dynamic prompt based on task context and codebase
+                    dynamic_prompt = PromptGenerator.generate_planning_prompt(
+                        role=self.role,
+                        task_context=self.task_context,
+                        codebase_structure=codebase_structure,
+                        relevant_context=relevant_context
+                    )
+                    system_prompt_to_use = dynamic_prompt
+                    logger.info(
+                        f"{self.role.value}: Using dynamic prompt for "
+                        f"{self.task_context.task_type.value} task "
+                        f"(complexity: {self.task_context.complexity.value})"
+                    )
+                except Exception as e:
+                    logger.warning(f"{self.role.value}: Dynamic prompt generation failed, using default: {e}")
+
             # Call the LLM (implemented by subclass)
-            generated_text = self._call_llm(self.system_prompt, user_prompt)
-            
+            generated_text = self._call_llm(system_prompt_to_use, user_prompt)
+
             logger.info(
                 f"{self.role.value} generated {len(generated_text)} chars "
                 f"(exchange {exchange_count}) in {self.detected_language or 'english'}"
             )
-            
+
             return generated_text
             
         except Exception as e:
