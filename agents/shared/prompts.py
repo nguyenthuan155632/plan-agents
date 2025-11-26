@@ -1,8 +1,23 @@
 """
 Shared system prompts for AI agents.
+
+This module provides both:
+1. Legacy static prompts (for backward compatibility)
+2. New dynamic prompt generation (recommended)
 """
 
 from core.message import Role
+from typing import Optional, List, Dict
+
+# Import new planning system components
+try:
+    from agents.shared.task_analyzer import TaskAnalyzer, TaskContext
+    from agents.shared.codebase_intelligence import CodebaseIntelligence, CodebaseStructure, RelevantContext
+    from agents.shared.prompt_generator import PromptGenerator
+    from agents.shared.execution_plan_generator import ExecutionPlanGenerator
+    PLANNING_SYSTEM_AVAILABLE = True
+except ImportError:
+    PLANNING_SYSTEM_AVAILABLE = False
 
 
 def get_system_prompt(role: Role) -> str:
@@ -141,4 +156,113 @@ Khuyến nghị: [Final recommendation]
 
 IMPORTANT: Detect language and respond in SAME language (Vietnamese→Vietnamese, English→English).
 Remember: Debate approaches, respect requests. Be the voice that asks "but what about..." constructively!"""
+
+
+# === NEW PLANNING SYSTEM FUNCTIONS ===
+
+def generate_dynamic_prompt(
+    role: Role,
+    task_description: str,
+    codebase_structure: Optional[CodebaseStructure] = None,
+    relevant_context: Optional[RelevantContext] = None
+) -> str:
+    """
+    Generate a dynamic, context-aware prompt for planning.
+
+    Args:
+        role: Agent role (AGENT_A or AGENT_B)
+        task_description: The user's task/request
+        codebase_structure: Optional codebase structure analysis
+        relevant_context: Optional task-specific context
+
+    Returns:
+        Dynamic system prompt tailored to the task and codebase
+
+    Example:
+        >>> prompt = generate_dynamic_prompt(
+        ...     Role.AGENT_A,
+        ...     "Add authentication to the app",
+        ...     codebase_structure=my_structure
+        ... )
+    """
+    if not PLANNING_SYSTEM_AVAILABLE:
+        return get_system_prompt(role)
+
+    try:
+        # Analyze the task
+        task_context = TaskAnalyzer.analyze(task_description)
+
+        # Generate dynamic prompt
+        return PromptGenerator.generate_planning_prompt(
+            role=role,
+            task_context=task_context,
+            codebase_structure=codebase_structure,
+            relevant_context=relevant_context
+        )
+    except Exception as e:
+        # Fallback to static prompt
+        return get_system_prompt(role)
+
+
+def create_execution_plan(
+    conversation_messages: List[Dict[str, str]],
+    original_request: str,
+    language: str = "english"
+) -> str:
+    """
+    Create an execution plan from a planning conversation.
+
+    Args:
+        conversation_messages: List of messages with 'role' and 'content'
+        original_request: The original user request
+        language: Language for the plan (english/vietnamese)
+
+    Returns:
+        Markdown-formatted execution plan
+
+    Example:
+        >>> messages = [
+        ...     {"role": "HUMAN", "content": "Add auth"},
+        ...     {"role": "AGENT_A", "content": "Use NextAuth..."},
+        ...     {"role": "AGENT_B", "content": "Consider JWT..."}
+        ... ]
+        >>> plan = create_execution_plan(messages, "Add auth", "english")
+        >>> print(plan)
+    """
+    if not PLANNING_SYSTEM_AVAILABLE:
+        return "Execution plan generation not available. Please install planning system dependencies."
+
+    try:
+        execution_plan = ExecutionPlanGenerator.generate_from_conversation(
+            conversation_messages,
+            original_request,
+            language
+        )
+        return execution_plan.to_markdown(language)
+    except Exception as e:
+        return f"Error generating execution plan: {str(e)}"
+
+
+def analyze_task(task_description: str) -> Optional[TaskContext]:
+    """
+    Analyze a task to understand its type and complexity.
+
+    Args:
+        task_description: The task to analyze
+
+    Returns:
+        TaskContext with analysis results, or None if analysis fails
+
+    Example:
+        >>> context = analyze_task("Refactor the UserService to use DI")
+        >>> print(context.task_type)  # TaskType.REFACTOR
+        >>> print(context.complexity)  # ComplexityLevel.MODERATE
+    """
+    if not PLANNING_SYSTEM_AVAILABLE:
+        return None
+
+    try:
+        return TaskAnalyzer.analyze(task_description)
+    except Exception:
+        return None
 
